@@ -206,8 +206,8 @@ const Noise = () => {
         <div className="container-fluid clearfix">
           <span className="d-block text-center text-sm-left d-sm-inline-block">
             Copyright ©2023{" "}
-            <a href="https://knndigital.com/" target="_blank" rel="noopener noreferrer">
-              EnviRobotics
+            <a href="https://ebhoom.com" target="_blank" rel="noopener noreferrer">
+              Ebhoom
             </a>
             . All rights reserved
           </span>

@@ -113,7 +113,7 @@ const ChatApp = () => {
             AquaBox Control and Monitor System
           </span>
           <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
-            © <a href="https://envirobotics.com" target="_blank">EnviRobotics</a> 2022
+            © <a href="https://ebhoom.com" target="_blank">Ebhoom</a> 2022
           </span>
         </div>
       </footer>
