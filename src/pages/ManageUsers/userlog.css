@@ -1,0 +1,54 @@
+.FloatRight{
+    float: right;
+}
+.FloatRight a {
+    padding-left: 5px;
+    cursor: pointer;
+    text-decoration: underline !important;
+    color: blue !important;
+}
+
+.popup-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .popup {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    width:85vh;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Box shadow for the popup */
+  }
+  
+  .close-btn {
+    position: static;
+    top: 10px;
+    right: 10px;
+    background: red;
+    border: 2px solid black;
+    cursor: pointer;
+    margin-right: 15px;
+    font-weight: bolder;
+    margin-bottom: 20px;
+    
+
+  }
+  .location-display{
+
+    margin-top: 20px;
+  }
+
+  /* index.css */
+
+.user-list-container {
+  max-height: 300px;
+  overflow-y: auto;
+}

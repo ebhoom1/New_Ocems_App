@@ -1,0 +1,7 @@
+.maindashboard {
+    position: sticky;
+    top: 64px; /* replace 60px with the actual height of your header */
+    width: 100%;
+    z-index: 5; 
+    background-color: white/* below the header but above the regular content */
+  }
