@@ -49,6 +49,8 @@ import Layout from './pages/Layout/Layout';
 import Transcation from './pages/Transactions/Transcation';
 import LoginNew from './pages/Login/LoginNew';
 import Mainsam from './pages/Maindashboard/Mainsam';
+import Chat from './pages/Chat/Chat';
+import LIveLayout from './pages/LiveMapping/LIveLayout';
 
 function App() {
   const dispatch = useDispatch();
@@ -134,6 +136,9 @@ function App() {
                   <Route path="/view-notification" element={<Viewnotification />} />
                   <Route path="/edit-parameter/:userName" element={<EditParameter />} />
                   <Route path="/sample" element={<Mainsam />} />
+                  <Route path="/live-station" element={<LIveLayout />} />
+                  <Route path="/chat" element={<Chat />} />
+
 
                 </Route>
               )}
@@ -156,6 +161,7 @@ function App() {
                   <Route path="/support-analyser" element={<SupportAnalyser />} />
                   <Route path="/view-report/:userName" element={<ViewReportUser />} />
 
+                  <Route path="/live-station" element={<LIveLayout />} />
 
 
                 </Route>

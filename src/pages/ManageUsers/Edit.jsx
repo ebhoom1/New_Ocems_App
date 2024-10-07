@@ -87,25 +87,25 @@ function Edit() {
   };
 
   const handleSaveUser = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.patch(`${API_URL}/api/edituser/${userId}`, userData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+  e.preventDefault();
+  try {
+    const response = await axios.patch(`${API_URL}/api/edituser/${userId}`, userData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-      if (response.status === 200) {
-        toast.success('User updated successfully!');
-        setTimeout(() => {
-          navigate("/manage-user");  // Redirect back to the user list
-        }, 2000);
-      }
-    } catch (error) {
-      console.error('Error updating user:', error);
-      toast.error('Failed to update user.');
+    if (response.status === 200) {
+      toast.success('User updated successfully!');
+      setTimeout(() => {
+        navigate("/manage-user");
+      }, 2000);
     }
-  };
+  } catch (error) {
+    console.error('Error updating user:', error);
+    toast.error('Failed to update user.');
+  }
+};
 
   const handleCancel = () => {
     navigate('/manage-user');

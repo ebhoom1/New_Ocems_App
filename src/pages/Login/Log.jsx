@@ -9,7 +9,7 @@ import { ToastContainer, toast } from "react-toastify";
 import Modal from "react-modal";
 import "react-toastify/dist/ReactToastify.css";
 import { loginUser } from "../../redux/features/auth/authSlice";
-
+import loginbanner from '../../assests/images/logimage.png'
 
 function Log() {
   const navigate = useNavigate();
