@@ -14,16 +14,11 @@ function DownloadData() {
     const [dateFrom, setDateFrom] = useState("");
     const [dateTo, setDateTo] = useState("");
     const [userName, setUserName] = useState("");
-
-    const [industry, setIndustry] = useState("");
     const [company, setCompany] = useState("");
-    const [format, setFormat] = useState("");
+    const [format, setFormat] = useState("csv"); // Default format
     const [users, setUsers] = useState([]);
     const [subscriptionDate, setSubscriptionDate] = useState(""); // New state for subscription date
-
     const navigate = useNavigate();
-
-    // Fetch users with API call
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -102,6 +97,7 @@ function DownloadData() {
     const handleHome = () => {
         navigate('/');
     };
+
   return (
     <div className="container-fluid">
     <div className="row">

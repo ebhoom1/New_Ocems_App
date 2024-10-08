@@ -142,19 +142,29 @@ const Airambient = () => {
           <div className="container-fluid">
             <div className="row">
               <div className="col-lg-12 col-12">
-                <div className='d-flex justify-content-between prevnext mt-5'>
-                  <div>
-                    <button onClick={handlePrevUser} disabled={loading} className='btn btn-outline-dark mt-3'>
-                      <i className="fa-solid fa-arrow-left me-1 "></i>Prev
-                    </button>
-                  </div>
-                  <h1 className='text-center mt-3'>Air Emission Dashboard</h1>
-                  <div>
-                    <button onClick={handleNextUser} disabled={loading} className='btn btn-outline-dark mt-3'>
-                      Next <i className="fa-solid fa-arrow-right"></i>
-                    </button>
-                  </div>
-                </div>
+              <h1 className={`text-center ${userData?.validUserOne?.userType === 'user' ? 'mt-5' : 'mt-3'}`}>
+  Stack Emmission Dashboard
+</h1>
+              <div className={`d-flex justify-content-between prevnext mt-5`}>
+  {userData?.validUserOne?.userType === 'admin' && (
+    <div>
+      <button onClick={handlePrevUser} disabled={loading} className='btn btn-outline-dark mt-3'>
+        <i className="fa-solid fa-arrow-left me-1"></i>Prev
+      </button>
+    </div>
+  )}
+
+ 
+
+  {userData?.validUserOne?.userType === 'admin' && (
+    <div>
+      <button onClick={handleNextUser} disabled={loading} className='btn btn-outline-dark mt-3'>
+        Next <i className="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  )}
+</div>
+
                 <div className="d-flex justify-content-between">
                   <ul className="quick-links ml-auto">
                     {userData?.validUserOne && userData.validUserOne.userType === 'user' && (

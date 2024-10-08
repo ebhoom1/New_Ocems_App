@@ -6,27 +6,31 @@ import axios from 'axios';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
 import { API_URL } from '../../utils/apiConfig';
+import './index.css'
 
 Modal.setAppElement('#root'); // Properly set the app element for accessibility
 
 const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    width: 'fit-content',
-    height: '440px',
-    padding: '20px',
-    border: '1px solid #ccc',
-    borderRadius: '10px',
-  },
-  overlay: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-};
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      width: 'fit-content',
+      height: '440px',
+      padding: '20px',
+      border: '1px solid #ccc',
+      borderRadius: '10px',
+      zIndex: 9999,  // Make sure modal is on top of everything
+      position: 'fixed',  // Ensure it stays fixed in the viewport
+    },
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',  // Darken the background
+      zIndex: 9998,  // Make sure overlay is just below the modal content
+    },
+  };
 
 const DailyHistoryModal = ({ isOpen, onRequestClose }) => {
   const [fromDate, setFromDate] = useState('');
@@ -127,9 +131,9 @@ const DailyHistoryModal = ({ isOpen, onRequestClose }) => {
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={customStyles}>
-      <div className="modal-header">
+      <div className="modal-header d-flex justify-content-between">
         <h5 className="modal-title">Select Date Range</h5>
-        <button type="button" className="close" onClick={onRequestClose}>
+        <button type="button" className="closebtn" onClick={onRequestClose}>
           &times;
         </button>
       </div>
@@ -181,10 +185,10 @@ const DailyHistoryModal = ({ isOpen, onRequestClose }) => {
           />
         </div>
       </div>
-      <div className="modal-footer">
-        <div className="btn-group">
+      <div className="modal-footer mt-2">
+        <div className="btn-group ">
           <button
-            className="btn btn-success dropdown-toggle"
+            className="btn btn-success dropdown-toggle me-2"
             onClick={() => setShowDownloadOptions(!showDownloadOptions)}
             disabled={!fromDate || !toDate || !userName}
           >

@@ -34,12 +34,12 @@ function Maindashboard() {
   <div>
      <div className="col-lg-12 col-12">
      <div className='maindashboard d-flex'>
-      <div className='flex-grow-1 content' style={{backgroundColor:'white'}}>
+      <div className='flex-grow-1 content bg-light' >
         
       
         
         <div className='me-1 '>
-          <Navbar expand="lg" className="navbg p-3 shadow" style={{ borderRadius: '10px' , backgroundColor:'white'}}>
+          <Navbar expand="lg" className="navbg p-3 shadow" style={{ borderRadius: '10px' }}>
             <div className='d-flex justify-content-between gap-2 w-100'>
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav" >
@@ -119,7 +119,7 @@ function Maindashboard() {
           </Navbar>
           {userType !== 'user' && (
 
-          <div className='flex-md-row  mt-3 button-section'>
+          <div className='flex-md-row  mt-3 button-section bg-light'>
             <div className='d-flex  flex-md-row justify-content-around align-items-center '>
             <Dropdown className='m-2 buttonbg rounded'>
   <Dropdown.Toggle 

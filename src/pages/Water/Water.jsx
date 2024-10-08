@@ -189,21 +189,26 @@ const Water = () => {
       <div className="row">
         
         <div className="col-lg-12 col-12">
+        <h1 className={`text-center ${userData?.validUserOne?.userType === 'user' ? 'mt-5' : 'mt-3'}`}>
+  Effluent Dashboard
+</h1>
           
-          <div className='d-flex justify-content-between prevnext mt-5  '>
-            <div>
-              <button onClick={handlePrevUser} disabled={loading} className='btn btn-outline-dark mt-3'>
-                <i className="fa-solid fa-arrow-left me-1 "></i>Prev
-              </button>
-            </div>
-            <h1 className='text-center mt-3'>Water Dashboard</h1>
-            <div>
-              <button onClick={handleNextUser}
-               disabled={loading} className='btn btn-outline-dark mt-3'>
-                Next <i className="fa-solid fa-arrow-right"></i>
-              </button>
-            </div>
-          </div>
+        {userData?.validUserOne?.userType === 'admin' && (
+  <div className='d-flex justify-content-between prevnext '>
+    <div>
+      <button onClick={handlePrevUser} disabled={loading} className='btn btn-outline-dark mb-2 '>
+        <i className="fa-solid fa-arrow-left me-1 "></i>Prev
+      </button>
+    </div>
+  
+
+    <div>
+      <button onClick={handleNextUser} disabled={loading} className='btn btn-outline-dark '>
+        Next <i className="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+)}
         <div className="d-flex justify-content-between">
         <ul className="quick-links ml-auto">
                 {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
