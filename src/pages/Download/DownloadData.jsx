@@ -179,7 +179,7 @@ function DownloadData() {
                                         <label>Format</label>
                                     <select className="input-field" value={format} onChange={(e) => setFormat(e.target.value)} style={{ width: '100%', padding: '15px', borderRadius: '10px' }}>
                                         <option value="csv">CSV</option>
-                                        <option value="json">JSON</option>
+                                        <option value="pdf">PDF</option>
                                     </select>
                                         </div>
                                     </div>
