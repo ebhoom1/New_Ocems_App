@@ -323,9 +323,10 @@ const Airambient = () => {
                 <footer className="footer">
                   <div className="container-fluid clearfix">
                     <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
-                      Ebhoom Control and Monitor System
+                    
                     </span>
                     <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
+                    Ebhoom Control and Monitor System <br />
                       {" "}©{" "}
                       <a href="" target="_blank">
                         Ebhoom Solutions LLP

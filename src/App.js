@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from './redux/features/user/userSlice';
@@ -56,28 +56,29 @@ import ViewComponent from './pages/Water/ViewComponent';
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { userData, loading, userType } = useSelector((state) => state.user);
+  const publicRoutes = ['/download-data' ];
 
   useEffect(() => {
-    dispatch(fetchUser())
-      .unwrap()
-      .then((responseData) => {
-        if (responseData.status === 401 || !responseData.validUserOne) {
-          console.log("User not Valid");
+    // Only perform user validation for routes that are not in the publicRoutes array
+    if (!publicRoutes.includes(location.pathname)) {
+      dispatch(fetchUser())
+        .unwrap()
+        .then((responseData) => {
+          if (responseData.status === 401 || !responseData.validUserOne) {
+            console.log("User not Valid");
+            navigate('/');
+          } else {
+            console.log("User verify");
+          }
+        })
+        .catch((error) => {
+          console.error("Error Validating User:", error);
           navigate('/');
-        } else {
-          console.log("User verified");
-        }
-      })
-      .catch((error) => {
-        console.error("Error Validating User:", error);
-        navigate('/');
-      });
-  }, [dispatch, navigate]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+        });
+    }
+  }, [dispatch, navigate, location.pathname]);
 
   return (
     <div className="App">
