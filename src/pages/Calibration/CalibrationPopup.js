@@ -32,14 +32,14 @@ useEffect(()=>{
         <div className="popup-container">
             <div className="popup">
                 <button className="close-btn"onClick={onClose}>
-                    <span className="icon-cross"></span>
-                    <span className="visually-hidden">X</span>
+                    <span className="icon-cross">X</span>
+                    <span className="visually-hidden">Close</span>
                 </button>
                 <div className="calibration-details">
                 <p className="card-text">Date:<strong> {calibrationData && calibrationData.date}</strong></p>
                 <p className="card-text">User ID: <strong>{calibrationData && calibrationData.userName}</strong></p>
                 <p className="card-text">Model Name: <strong>{calibrationData && calibrationData.equipmentName}</strong></p>
-                <h1 className="card-title">Results</h1>
+                <h1 className="card-title"> <b>RESULTS</b></h1>
                 <p className="card-text">Before: <strong>{calibrationData && calibrationData.before}</strong></p>
                 <p className="card-text">After: <strong>{calibrationData && calibrationData.after}</strong></p>
                 <p className="card-text">notes: <strong>{calibrationData && calibrationData.notes}</strong></p>

@@ -13,10 +13,14 @@ import HeaderSim from '../Header/HeaderSim';
 function DownloadData() {
     const [dateFrom, setDateFrom] = useState("");
     const [dateTo, setDateTo] = useState("");
+    const [userName, setUserName] = useState("");
+
     const [industry, setIndustry] = useState("");
     const [company, setCompany] = useState("");
     const [format, setFormat] = useState("");
     const [users, setUsers] = useState([]);
+    const [subscriptionDate, setSubscriptionDate] = useState(""); // New state for subscription date
+
     const navigate = useNavigate();
 
     // Fetch users with API call
@@ -28,75 +32,72 @@ function DownloadData() {
                 setUsers(filteredUsers);
             } catch (error) {
                 console.error("Error fetching users:", error);
+                toast.error("Error fetching users");
             }
         };
+
         fetchUsers();
     }, []);
 
-    // Handle download functionality
+    // Update the subscriptionDate when a user is selected
+    const handleUserChange = (e) => {
+        const selectedUserName = e.target.value;
+        setUserName(selectedUserName);
+
+        // Find the selected user's subscription date
+        const selectedUser = users.find(user => user.userName === selectedUserName);
+        if (selectedUser && selectedUser.subscriptionDate) {
+            // Set the subscription date
+            setSubscriptionDate(moment(selectedUser.subscriptionDate).format('YYYY-MM-DD'));
+        } else {
+            setSubscriptionDate(""); // Clear if no subscription date found
+        }
+    };
+
     const handleDownload = async (e) => {
         e.preventDefault();
+
+        if (!userName || !dateFrom || !dateTo) {
+            toast.error("Please fill in all fields.");
+            return;
+        }
+
         const formattedDateFrom = moment(dateFrom).format('DD-MM-YYYY');
         const formattedDateTo = moment(dateTo).format('DD-MM-YYYY');
 
-        // Trim leading and trailing spaces from parameters
-        const trimmedIndustry = industry.trim();
-        const trimmedCompany = company.trim();
-
-        // Construct query string
+        // Construct the query string
         const queryParams = {
             fromDate: formattedDateFrom,
             toDate: formattedDateTo,
-            industryName: trimmedIndustry,
-            companyName: trimmedCompany,
-            format
+            userName: userName.trim(),
+            format: format
         };
 
         const queryString = Object.entries(queryParams)
             .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
             .join('&');
 
-        const requestUrl = `${API_URL}/api/downloadIotData?${queryString}`;
+        const requestUrl = `${API_URL}/api/downloadIotDataByUserName?${queryString}`;
+
+        console.log('Request URL:', requestUrl); // Debug the URL
 
         try {
             const response = await axios.get(requestUrl, { responseType: 'blob' });
+
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `iot_data.${format}`);
             document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link); // Clean up the link element
             toast.success(`IoT Data downloaded successfully in ${format} format`);
         } catch (error) {
             console.error("Error downloading data:", error);
-            toast.error("Error in downloading IoT data");
+            toast.error(`Error in downloading IoT data`);
         }
     };
 
-    const industryType = [
-        { category: "Sugar" },
-        { category: "Cement" },
-        { category: "Distillery" },
-        { category: "Petrochemical" },
-        { category: "Pulp & Paper" },
-        { category: "Fertilizer" },
-        { category: "Tannery" },
-        { category: "Pesticides" },
-        { category: "Thermal Power Station" },
-        { category: "Caustic Soda" },
-        { category: "Pharmaceuticals" },
-        { category: "Chemical" },
-        { category: "Dye and Dye Stuff" },
-        { category: "Refinery" },
-        { category: "Copper Smelter" },
-        { category: "Iron and Steel" },
-        { category: "Zinc Smelter" },
-        { category: "Aluminium" },
-        { category: "STP/ETP" },
-        { category: "NWMS/SWMS" },
-        { category: "Noise" },
-        { category: "Other" },
-    ];
 
     const handleHome = () => {
         navigate('/');
@@ -126,56 +127,64 @@ function DownloadData() {
                             <form className='p-5' onSubmit={handleDownload}>
                                 <div className="row">
                                     {/* Select Industry */}
-                                    <div className="col-lg-6 col-md-6 mb-4">
-                                        <div className="form-group">
-                                            <label htmlFor="industry" className="form-label">Select Industry</label>
-                                            <select id="industry" className="form-control text-start" value={industry} onChange={(e) => setIndustry(e.target.value)} style={{ width: '100%', padding: '15px', borderRadius: '10px' }}>
-                                                <option>select</option>
-                                                {industryType.map((item, index) => (
-                                                    <option key={index} value={item.category}>{item.category}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
+                                   
 
                                     {/* Select Company */}
                                     <div className="col-lg-6 col-md-6 mb-4">
                                         <div className="form-group">
-                                            <label htmlFor="company" className="form-label">Select Company</label>
-                                            <select id="company" className="form-control" value={company} onChange={(e) => setCompany(e.target.value)} style={{ width: '100%', padding: '15px', borderRadius: '10px' }}>
+                                            <label htmlFor="industry" className="form-label">Select Company</label>
+                                            <select className="input-field" onChange={handleUserChange} style={{ width: '100%', padding: '15px', borderRadius: '10px' }}>
                                                 <option>select</option>
                                                 {users.map((item) => (
-                                                    <option key={item.companyName} value={item.companyName}>{item.companyName}</option>
-                                                ))}
+                                            <option key={item.userName} value={item.userName}>
+                                                {item.companyName}
+                                            </option>
+                                        ))}
                                             </select>
                                         </div>
                                     </div>
-
                                     {/* From Date */}
-                                    <div className="col-lg-6 col-md-6 mb-4">
+                                     <div className="col-lg-6 col-md-6 mb-4">
                                         <div className="form-group">
-                                            <label htmlFor="from-date" className="form-label">From Date</label>
-                                            <input id="from-date" className="form-control" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ width: '100%', padding: '15px', borderRadius: '10px' }} />
+                                        <label>Date From</label> 
+                                        <input
+                                        type="date"
+                                        className="input-field"
+                                        value={dateFrom}
+                                        onChange={(e) => setDateFrom(e.target.value)}
+                                        required
+                                        min={subscriptionDate} // Set the minimum date as the subscription date
+                                        disabled={!subscriptionDate}
+                                        style={{ width: '100%', padding: '15px', borderRadius: '10px' }} // Disable if no subscription date available
+                                    />
+                                    {subscriptionDate && (
+                                        <small style={{color:'red'}}>Available from: {moment(subscriptionDate).format('DD-MM-YYYY')}</small>
+                                    )}        
                                         </div>
                                     </div>
 
                                     {/* To Date */}
                                     <div className="col-lg-6 col-md-6 mb-4">
                                         <div className="form-group">
-                                            <label htmlFor="to-date" className="form-label">To Date</label>
-                                            <input id="to-date" className="form-control" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={{ width: '100%', padding: '15px', borderRadius: '10px' }} />
-                                        </div>
+                                        <label>Date To</label>            
+                                        <input
+                                        type="date"
+                                        className="input-field"
+                                        value={dateTo}
+                                        onChange={(e) => setDateTo(e.target.value)}
+                                        style={{ width: '100%', padding: '15px', borderRadius: '10px' }}
+                                        required
+                                    />                                        </div>
                                     </div>
 
                                     {/* Download Format */}
                                     <div className="col-lg-6 col-md-6 mb-4">
                                         <div className="form-group">
-                                            <label htmlFor="format" className="form-label">Download Format</label>
-                                            <select id="format" className="form-control" value={format} onChange={(e) => setFormat(e.target.value)} style={{ width: '100%', padding: '15px', borderRadius: '10px' }}>
-                                                <option>select</option>
-                                                <option value="pdf">PDF</option>
-                                                <option value="csv">CSV</option>
-                                            </select>
+                                        <label>Format</label>
+                                    <select className="input-field" value={format} onChange={(e) => setFormat(e.target.value)} style={{ width: '100%', padding: '15px', borderRadius: '10px' }}>
+                                        <option value="csv">CSV</option>
+                                        <option value="json">JSON</option>
+                                    </select>
                                         </div>
                                     </div>
                                 </div>

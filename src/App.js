@@ -51,6 +51,7 @@ import LoginNew from './pages/Login/LoginNew';
 import Mainsam from './pages/Maindashboard/Mainsam';
 import Chat from './pages/Chat/Chat';
 import LIveLayout from './pages/LiveMapping/LIveLayout';
+import ViewComponent from './pages/Water/ViewComponent';
 
 function App() {
   const dispatch = useDispatch();
@@ -138,6 +139,8 @@ function App() {
                   <Route path="/sample" element={<Mainsam />} />
                   <Route path="/live-station" element={<LIveLayout />} />
                   <Route path="/chat" element={<Chat />} />
+                  <Route path="/view-data" element={<ViewComponent />} />
+
 
 
                 </Route>
@@ -162,6 +165,8 @@ function App() {
                   <Route path="/view-report/:userName" element={<ViewReportUser />} />
 
                   <Route path="/live-station" element={<LIveLayout />} />
+                  <Route path="/view-data" element={<ViewComponent />} />
+
 
 
                 </Route>

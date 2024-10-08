@@ -54,10 +54,12 @@
 }
 
 .chat-main {
-  background: #fff;
-  padding: 20px;
+  flex-grow: 1;
+  overflow-y: auto; /* Enables vertical scroll on sidebar */
+  max-height: calc(100vh - 220px);
   border-left: 1px solid #ddd;
- color: black
+  color: black;
+
 }
 
 .chat-header {
@@ -72,6 +74,7 @@
 .chat-input-box {
   display: flex;
   align-items: center;
+  height: auto;
 }
 
 .chat-input-box input {
@@ -276,4 +279,49 @@
   color: #fff;
   border-radius: 4px;
   background-color: red;
+}
+/*  */
+/* General Layout */
+/* .container-fluid {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+} */
+
+/* Sidebar and Chat Window Layout */
+.chat-sidebar {
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 220px);
+  border-right: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 5);
+}
+
+.chat-main {
+  background: #fff;
+  padding: 20px;
+  border-left: 1px solid #ddd;
+  height: 100%;
+  color: black;
+}
+
+/* Hide sidebar on small screens */
+@media (max-width: 768px) {
+  .chat-sidebar {
+    display: block;
+  }
+  .chat-main {
+    width: 100%;
+  }
+}
+
+/* For larger screens, show both sidebar and chat window */
+@media (min-width: 768px) {
+  .chat-sidebar {
+    display: block;
+  }
+  .chat-main {
+    display: block;
+  }
 }

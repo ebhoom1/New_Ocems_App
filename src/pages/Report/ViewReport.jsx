@@ -22,6 +22,7 @@ const ViewReport = () => {
   const [reports, setReports] = useState([]);
   const [filteredReports, setFilteredReports] = useState([]);
   const [userType, setUserType] = useState('');
+  const [noReportMessage, setNoReportMessage] = useState(''); 
   const navigate = useNavigate();
 
   // Fetch all reports and user type on component mount
@@ -36,35 +37,58 @@ const ViewReport = () => {
           },
         });
         const userData = userResponse.data;
-
+  
         if (userData.status === 401 || !userData.validUserOne) {
           navigate('/');
         } else {
           setUserType(userData.validUserOne.userType);
-
+  
           const storedUserId = sessionStorage.getItem('selectedUserId') || null;
-
+  
           // Fetch all reports for admin or individual user reports based on userType
           if (userData.validUserOne.userType === 'admin') {
             const response = await axios.get(`${API_URL}/api/get-all-report`);
             const allReports = response.data.report;
-
+  
             if (storedUserId) {
               // Filter reports by storedUserId if available
               const filteredByUserId = allReports.filter((report) =>
                 report.userName?.toLowerCase() === storedUserId.toLowerCase()
               );
-              setReports(filteredByUserId);
-              setFilteredReports(filteredByUserId);
+  
+              if (filteredByUserId.length > 0) {
+                setReports(filteredByUserId);
+                setFilteredReports(filteredByUserId);
+              } else {
+                setNoReportMessage('No reports found for the selected user.');
+              }
             } else {
               // Show all reports if no storedUserId is found
-              setReports(allReports);
-              setFilteredReports(allReports);
+              if (allReports.length > 0) {
+                setReports(allReports);
+                setFilteredReports(allReports);
+              } else {
+                setNoReportMessage('No reports available.');
+              }
             }
           } else {
-            const response = await axios.get(`${API_URL}/api/get-a-report/${userData.validUserOne.userName}`);
-            setReports(response.data.reports || []);
-            setFilteredReports(response.data.reports || []);
+            try {
+              const response = await axios.get(`${API_URL}/api/get-a-report/${userData.validUserOne.userName}`);
+              const userReports = response.data.reports || [];
+  
+              if (userReports.length > 0) {
+                setReports(userReports);
+                setFilteredReports(userReports);
+              } else {
+                setNoReportMessage('No report generated for this user.');
+              }
+            } catch (error) {
+              if (error.response && error.response.status === 404) {
+                setNoReportMessage('No report generated for this user.');
+              } else {
+                console.error('Error fetching user reports:', error);
+              }
+            }
           }
         }
       } catch (error) {
@@ -72,9 +96,10 @@ const ViewReport = () => {
         navigate('/');
       }
     };
-
+  
     fetchReports();
   }, [navigate, currentUserName]);
+  
 
   // Delete report functionality
   const handleDelete = async (reportId) => {
@@ -130,7 +155,7 @@ const ViewReport = () => {
               <div className="row">
                 <div className="col-12 col-md-12 grid-margin">
                   <div className="col-12 d-flex justify-content-between align-items-center m-3">
-                    <h1 className="text-center mt-3">Report</h1>
+                    <h1 className="text-center mt-5">Report</h1>
                   </div>
                   <div className="card last-trips-card mt-2" style={{ overflowX: 'scroll' }}>
                     <div className="card-body">

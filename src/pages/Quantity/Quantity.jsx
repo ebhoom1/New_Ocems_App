@@ -122,7 +122,7 @@ const Quantity = () => {
                   <div className="row page-title-header">
                     <div className="col-12">
                       <div className="page-header">
-                        <h4 className="page-title">Quantity Dashboard</h4>
+                        <h4 className="page-title mt-5">Quantity Dashboard</h4>
                       </div>
                     </div>
                   </div>
@@ -220,7 +220,7 @@ const Quantity = () => {
                         AquaBox Control and Monitor System
                       </span>
                       <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
-                        © <a href="www.ebhoom.com" target="_blank">Ebhoom</a> 2022
+                        © <a href="" target="_blank">EnviRobotics</a> 2022
                       </span>
                     </div>
                   </footer>
