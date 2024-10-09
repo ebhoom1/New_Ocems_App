@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import io from 'socket.io-client';
@@ -110,10 +111,11 @@ const ChatApp = () => {
       <footer className="footer">
         <div className="container-fluid clearfix">
           <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
-            AquaBox Control and Monitor System
+            
           </span>
           <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
-            © <a href="https://ebhoom.com" target="_blank">Ebhoom</a> 2022
+          AquaBox Control and Monitor System <br />
+            © <a href="https://envirobotics.com" target="_blank">Ebhoom</a> 2022
           </span>
         </div>
       </footer>

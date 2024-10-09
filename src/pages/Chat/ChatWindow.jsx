@@ -168,7 +168,7 @@ const ChatWindow = ({ currentChat, socket }) => {
         <div className="chat-input-box">
           <input
             type="text"
-            placeholder="Type here..."
+            placeholder="Type here..."a
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             className="chat-input"

@@ -12,6 +12,7 @@ import './water.css';
 import waterDrop from '../../assests/images/water.png';
 import Layout from "../Layout/Layout";
 import Hedaer from "../Header/Hedaer";
+import DailyHistoryModal from "./DailyHIstoryModal";
 
 const Water = () => {
   // Use useOutletContext if available, otherwise set defaults
@@ -20,17 +21,16 @@ const Water = () => {
   const { searchTerm = '', searchStatus = '', handleSearch = () => {}, isSearchTriggered = false } = outletContext;
 
   const dispatch = useDispatch();
-  const { userData } = useSelector((state) => state.user);
+  const { userData,userType } = useSelector((state) => state.user);
   const { latestData, error } = useSelector((state) => state.iotData);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
   const [searchError, setSearchError] = useState("");
-  const [currentUserName, setCurrentUserName] = useState("KSPCB001");
-  const [companyName, setCompanyName] = useState("");
+  const [currentUserName, setCurrentUserName] = useState(userType === 'admin' ? "KSPCB001" : userData?.validUserOne?.userName);  const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
   // Water parameters
   const waterParameters = [
     { parameter: "Ph", value: 'pH', name: 'ph' },
@@ -63,6 +63,18 @@ const Water = () => {
     } finally {
       setLoading(false);
     }
+  };
+  const fetchHistoryData = async (fromDate, toDate) => {
+    // Logic to fetch history data based on the date range
+    console.log('Fetching data from:', fromDate, 'to:', toDate);
+    // Example API call:
+    // const data = await dispatch(fetchHistoryDataByDate({ fromDate, toDate })).unwrap();
+  };
+  const downloadHistoryData = (fromDate, toDate) => {
+    // Logic to download history data based on the date range
+    console.log('Downloading data from:', fromDate, 'to:', toDate);
+    // Example API call:
+    // downloadData({ fromDate, toDate });
   };
   useEffect(() => {
     if (userData?.validUserOne?.userType === 'user') {
@@ -177,37 +189,55 @@ const Water = () => {
       <div className="row">
         
         <div className="col-lg-12 col-12">
+        <h1 className={`text-center ${userData?.validUserOne?.userType === 'user' ? 'mt-5' : 'mt-3'}`}>
+  Effluent Dashboard
+</h1>
           
-          <div className='d-flex justify-content-between prevnext mt-5 ps-5 pe-5'>
-            <div>
-              <button onClick={handlePrevUser} disabled={loading} className='btn btn-outline-dark'>
-                <i className="fa-solid fa-arrow-left me-1"></i>Prev
-              </button>
-            </div>
-            <h1 className='text-center'>Water Dashboard</h1>
-            <div>
-              <button onClick={handleNextUser}
-               disabled={loading} className='btn btn-outline-dark'>
-                Next <i className="fa-solid fa-arrow-right"></i>
-              </button>
-            </div>
-          </div>
+        {userData?.validUserOne?.userType === 'admin' && (
+  <div className='d-flex justify-content-between prevnext '>
+    <div>
+      <button onClick={handlePrevUser} disabled={loading} className='btn btn-outline-dark mb-2 '>
+        <i className="fa-solid fa-arrow-left me-1 "></i>Prev
+      </button>
+    </div>
+  
+
+    <div>
+      <button onClick={handleNextUser} disabled={loading} className='btn btn-outline-dark '>
+        Next <i className="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+)}
         <div className="d-flex justify-content-between">
         <ul className="quick-links ml-auto">
                 {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
                   <h5>Data Interval: <span className="span-class">{userData.validUserOne.dataInteval}</span></h5>
                 )}
               </ul>
-              {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
+              <ul className="quick-links ml-auto">
+              <h5 className='d-flex justify-content-end  '>
+       <b>Analyser Health:</b><span className={searchResult?.validationStatus ? 'text-success' : 'text-danger'}>{searchResult?.validationStatus ? 'Good' : 'Problem'}</span></h5>
+      
+              </ul>
+
+             
+             
+        </div>
+        <div className="d-flex justify-content-between">
+        {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
                 <ul className="quick-links ml-auto">
                   <button type="submit" onClick={handleOpenCalibrationPopup} className="btn  mb-2 mt-2" style={{backgroundColor:'#236a80' , color:'white'}}> Calibration </button>
                 </ul>
               )}
+               <ul className="quick-links ml-auto ">
+                <button className="btn  mb-2 mt-2 " style={{backgroundColor:'#236a80' , color:'white'}} onClick={() => setShowHistoryModal(true)}>
+                  Daily History
+                </button>
+              </ul>
         </div>
-          <div><h5 className='d-flex justify-content-end me-5 mt-3'>
-          <b>Analyser Health :</b> <span className={searchResult?.validationStatus ? 'text-success' : 'text-danger'}>{searchResult?.validationStatus ? 'Good' : 'Problem'}</span></h5>
-          </div>
-        
+         
+         
           {loading && (
             <div className="spinner-container">
               <Oval
@@ -285,6 +315,7 @@ const Water = () => {
                       onClose={handleCloseCalibrationPopup}
                     />
                   )}
+                  
                   <CalibrationExceeded />
                 </div>
               </div>
@@ -296,10 +327,10 @@ const Water = () => {
       <footer className="footer">
         <div className="container-fluid clearfix">
           <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
-            Ebhoom Control and Monitor System
+          
           </span>
           <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
-            {" "}
+            {" "}  Ebhoom Control and Monitor System <br />
             ©{" "}
             <a href="" target="_blank">
               Ebhoom Solutions LLP
@@ -313,6 +344,12 @@ const Water = () => {
         </div>
       </div>
     </div>
+    <DailyHistoryModal
+        isOpen={showHistoryModal}
+        onRequestClose={() => setShowHistoryModal(false)}
+        fetchData={fetchHistoryData}
+        downloadData={downloadHistoryData}
+      />
 
 
     

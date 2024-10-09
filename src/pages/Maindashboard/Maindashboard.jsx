@@ -34,24 +34,24 @@ function Maindashboard() {
   <div>
      <div className="col-lg-12 col-12">
      <div className='maindashboard d-flex'>
-      <div className='flex-grow-1 content' style={{backgroundColor:'white'}}>
+      <div className='flex-grow-1 content bg-light' >
         
       
         
         <div className='me-1 '>
-          <Navbar expand="lg" className="navbg p-3 shadow" style={{ borderRadius: '10px' , backgroundColor:'white'}}>
+          <Navbar expand="lg" className="navbg p-3 shadow" style={{ borderRadius: '10px' }}>
             <div className='d-flex justify-content-between gap-2 w-100'>
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav" >
                 <Nav className="w-100 justify-content-evenly">
-                  <Nav.Link href="/water">Water</Nav.Link>
-                  <Nav.Link href="/ambient">Ambient Air</Nav.Link>
+                  <Nav.Link href="/water">Effluent</Nav.Link>
+                  <Nav.Link href="/ambient">Stack Emmission </Nav.Link>
                   <Nav.Link href="/noise">Noise</Nav.Link>
                   <Nav.Link href="/quantity">Quantity</Nav.Link>
 
                 
                                  <Nav.Link href="/energy">Energy</Nav.Link>
-                  
+          {/*         
                   <Dropdown>
   <Dropdown.Toggle 
     as={Nav.Link} 
@@ -85,7 +85,7 @@ function Maindashboard() {
       </Button>
     </div>
   </Dropdown.Menu>
-</Dropdown>
+</Dropdown> */}
 
                 </Nav>
               </Navbar.Collapse>
@@ -119,7 +119,7 @@ function Maindashboard() {
           </Navbar>
           {userType !== 'user' && (
 
-          <div className='flex-md-row  mt-3 button-section'>
+          <div className='flex-md-row  mt-3 button-section bg-light'>
             <div className='d-flex  flex-md-row justify-content-around align-items-center '>
             <Dropdown className='m-2 buttonbg rounded'>
   <Dropdown.Toggle 

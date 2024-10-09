@@ -126,6 +126,11 @@ function DashboardSam() {
                                 </a>
                             </li>
                             <li className='list active text-center'>
+                                <a href="/chat" style={{textDecoration: 'none', color: '#ffffff'}}>
+                                    <span className='title'>Chat</span>
+                                </a>
+                            </li>
+                            <li className='list active text-center'>
                                 <a href="/transactions" style={{textDecoration: 'none', color: '#ffffff'}}>
                                     <span className='title'>Payment</span>
                                 </a>
