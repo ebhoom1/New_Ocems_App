@@ -7,6 +7,7 @@ import ReactFlow, {
   useEdgesState,
 } from 'react-flow-renderer';
 import SVGNode from './SVGnode';
+import { FaTrash } from 'react-icons/fa'; // Import Trash Icon
 
 // nodeTypes definition with SVGNode
 const nodeTypes = {
@@ -21,6 +22,7 @@ function Canvas() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [isDragging, setIsDragging] = useState(false);
 
+<<<<<<< HEAD
   const [showDeleteBox, setShowDeleteBox] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
   const [boxPosition, setBoxPosition] = useState({ x: 0, y: 0 });
@@ -33,6 +35,16 @@ function Canvas() {
     setIsDragging(false);
   };
 
+=======
+  const onDragStart = () => {
+    setIsDragging(true);
+  };
+
+  const onDragStop = () => {
+    setIsDragging(false);
+  };
+
+>>>>>>> 437ee14fe476846a2a61e1e21d3a0fe55de463b9
   const onResizeStart = () => {
     setIsDragging(true);
   };
@@ -100,6 +112,7 @@ function Canvas() {
     return '';
   };
 
+<<<<<<< HEAD
   // Double-click event handler
   const handleNodeDoubleClick = (event, nodeId) => {
     const canvasBounds = document.querySelector('.reactflow-wrapper').getBoundingClientRect();
@@ -123,6 +136,12 @@ function Canvas() {
     setShowDeleteBox(false); // Close the delete box without deleting
   };
 
+=======
+  const handleDeleteNode = (nodeId) => {
+    setNodes((nds) => nds.filter((node) => node.id !== nodeId)); // Delete the selected node
+  };
+  
+>>>>>>> 437ee14fe476846a2a61e1e21d3a0fe55de463b9
   return (
     <div className="react-flow-container">
       <div className="react-flow-scrollable">
@@ -138,7 +157,10 @@ function Canvas() {
             onConnect={onConnect}
             onDragOver={onDragOver}
             onDrop={onDrop}
+<<<<<<< HEAD
             onNodeDoubleClick={(event, node) => handleNodeDoubleClick(event, node.id)}
+=======
+>>>>>>> 437ee14fe476846a2a61e1e21d3a0fe55de463b9
             nodeTypes={nodeTypes}
             style={{
               pointerEvents: isDragging ? 'none' : 'auto',
@@ -150,6 +172,7 @@ function Canvas() {
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* Conditionally render the Delete box */}
       {showDeleteBox && (
         <div
@@ -160,10 +183,24 @@ function Canvas() {
             backgroundColor: 'white',
             border: '1px solid #ccc',
             padding: '10px',
+=======
+      {/* Always render the Delete box next to each node */}
+      {nodes.map((node) => (
+        <div
+          key={node.id}
+          style={{
+            position: 'absolute',
+            left: node.position.x + 50, // Adjust based on the position
+            top: node.position.y,
+            backgroundColor: 'white',
+            border: '1px solid #ccc',
+            padding: '5px',
+>>>>>>> 437ee14fe476846a2a61e1e21d3a0fe55de463b9
             zIndex: 1000,
             boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.68)',
           }}
         >
+<<<<<<< HEAD
           <div className="d-flex justify-content-between">
             <button onClick={handleCloseBox} style={{ background: 'none', border: 'none' }}>
               &#x2716;
@@ -178,6 +215,14 @@ function Canvas() {
           </button>
         </div>
       )}
+=======
+          <FaTrash
+            onClick={() => handleDeleteNode(node.id)}
+            style={{ color: 'red', cursor: 'pointer' }}
+          />
+        </div>
+      ))}
+>>>>>>> 437ee14fe476846a2a61e1e21d3a0fe55de463b9
     </div>
   );
 }
