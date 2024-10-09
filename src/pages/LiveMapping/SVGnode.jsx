@@ -164,12 +164,7 @@ const SVGNode = ({ data, selected }) => {
             size={20}
           />
           
-          {/* Delete Icon */}
-          <FaTrashAlt
-            onClick={() => data.onDelete(data.id)} // Trigger delete on click
-            style={{ cursor: 'pointer', color: 'red', marginTop: '10px' }}
-            size={20}
-          />
+       
         </div>
       )}
     </div>

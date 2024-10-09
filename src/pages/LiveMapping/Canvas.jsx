@@ -7,6 +7,7 @@ import ReactFlow, {
   useEdgesState,
 } from 'react-flow-renderer';
 import SVGNode from './SVGnode';
+import { FaTrash } from 'react-icons/fa'; // Import Trash Icon
 
 // nodeTypes definition with SVGNode
 const nodeTypes = {
@@ -78,12 +79,7 @@ function Canvas() {
       id: `${parsedShapeData.id}_${nodes.length}`,
       type: 'svgNode',
       position,
-      data: { 
-        label: parsedShapeData.label, 
-        svgPath: parsedShapeData.svgPath, 
-        backendValue,
-        onDelete: handleDeleteNode, // Pass handleDeleteNode to each node's data
-      },
+      data: { label: parsedShapeData.label, svgPath: parsedShapeData.svgPath, backendValue },
     };
 
     setNodes((nds) => nds.concat(newNode));
@@ -104,7 +100,7 @@ function Canvas() {
   const handleDeleteNode = (nodeId) => {
     setNodes((nds) => nds.filter((node) => node.id !== nodeId)); // Delete the selected node
   };
-
+  
   return (
     <div className="react-flow-container">
       <div className="react-flow-scrollable">
@@ -113,13 +109,7 @@ function Canvas() {
             <button className="btn btn-success">Save</button>
           </div>
           <ReactFlow
-            nodes={nodes.map((node) => ({
-              ...node,
-              data: {
-                ...node.data,
-                onDelete: handleDeleteNode, // Pass handleDeleteNode to each node's data
-              },
-            }))}
+            nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
@@ -136,9 +126,30 @@ function Canvas() {
           </ReactFlow>
         </div>
       </div>
+
+      {/* Always render the Delete box next to each node */}
+      {nodes.map((node) => (
+        <div
+          key={node.id}
+          style={{
+            position: 'absolute',
+            left: node.position.x + 50, // Adjust based on the position
+            top: node.position.y,
+            backgroundColor: 'white',
+            border: '1px solid #ccc',
+            padding: '5px',
+            zIndex: 1000,
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.68)',
+          }}
+        >
+          <FaTrash
+            onClick={() => handleDeleteNode(node.id)}
+            style={{ color: 'red', cursor: 'pointer' }}
+          />
+        </div>
+      ))}
     </div>
   );
 }
 
 export default Canvas;
-  
