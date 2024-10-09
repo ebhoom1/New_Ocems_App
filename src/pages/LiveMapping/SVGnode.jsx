@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Resizable } from 're-resizable';
 import { FaSyncAlt, FaTrashAlt } from 'react-icons/fa'; // Import rotate and delete icons
 
-const SVGNode = ({ data, selected }) => {
+const SVGNode = ({ data, selected, onDelete }) => {
   const [size, setSize] = useState({ width: 100, height: 100 });
   const [isResizing, setIsResizing] = useState(false);
   const [backendValue, setBackendValue] = useState('');
@@ -163,8 +163,6 @@ const SVGNode = ({ data, selected }) => {
             style={{ cursor: 'pointer', marginTop: '10px' }}
             size={20}
           />
-          
-       
         </div>
       )}
     </div>
