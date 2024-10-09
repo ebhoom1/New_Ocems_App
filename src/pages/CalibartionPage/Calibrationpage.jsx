@@ -95,8 +95,8 @@ const Calibration = () => {
             <div className="col-12 col-md-12 grid-margin">
               <h1 className="text-center mt-5">Calibration Added By</h1>
               <div className="card m-1">
-                <div className="card-body">
-                  <form onSubmit={handleSubmit} className="m-5">
+                <div className="card-body ">
+                  <form onSubmit={handleSubmit} className=" calibcard">
                     <div className="row">
                       {/* User ID */}
                       <div className="col-lg-6 col-md-6 mb-4">

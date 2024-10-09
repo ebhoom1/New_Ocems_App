@@ -32,7 +32,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
- width: 72%;
+ width: 70%;
   border-radius: 10px;
 }
 
@@ -40,15 +40,17 @@
   font-size: 1.2rem;
 }
 
-@media (max-width: 767px) {
-  /* Remove padding on mobile view for Navbar and Offcanvas */
+@media (max-width: 1000px) {
   .header-navbar {
     margin-left: 0;
     margin-right: 0;
     padding-left: 0;
     width: 95%;
-    /* padding-right: 60px; */
   }
+  
+  /* Add margin-top for the dropdown in mobile view */
+  
+  
   @media (min-width: 769px) {
     .header-navbar .icons{
       margin-left: 0;
@@ -57,6 +59,7 @@
     padding-right: 0;
 
     }
+  
     
   }
 
@@ -78,5 +81,19 @@
 
   .header-navbar .brand-text {
     text-align: left;
+  }
+}
+@media (max-width: 450px) {
+  .drop {
+    margin-top: 20%;
+    background: none;
+  }
+}
+
+/* Desktop and larger screens (min-width: 768px) */
+@media (min-width: 768px) {
+  .drop {
+    margin-top: 10%;
+    background: none;
   }
 }

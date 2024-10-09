@@ -5,3 +5,14 @@
     z-index: 5; 
     background-color: white/* below the header but above the regular content */
   }
+
+  @media (max-width: 767px) {
+    .calibcard{
+      margin: 0;
+    }
+  }
+  @media (min-width: 767px) {
+    .calibcard{
+      margin: 90px;
+    }
+  }

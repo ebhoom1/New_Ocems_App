@@ -164,43 +164,41 @@ function Hedaer() {
         </Navbar>
 
         {userData?.validUserOne?.userType !== 'user' && (
-          <div className="ms-0 mb-3">
-            <div className=" col-lg-12 drop" style={{marginTop:'10%' , background:'none'}}>
-              <Dropdown show={isDropdownOpen} onToggle={toggleDropdown}>
-                <Dropdown.Toggle id="dropdown-basic" style={{backgroundColor:'#236a80' , outline:'none' , border:'none'}}>
-                  {userName ? `Selected: ${userName}` : 'Select User'}
-                </Dropdown.Toggle>
+  <div className="ms-0 mb-3">
+    <div className="col-lg-12 drop" style={{ background: 'none' }}>
+      <Dropdown show={isDropdownOpen} onToggle={toggleDropdown}>
+        <Dropdown.Toggle id="dropdown-basic" style={{ backgroundColor: '#236a80', outline: 'none', border: 'none' }}>
+          {userName ? `Selected: ${userName}` : 'Select User'}
+        </Dropdown.Toggle>
 
-                <Dropdown.Menu style={{ maxHeight: '200px' }}>
-                  <input
-                    type="text"
-                    placeholder="Search user..."
-                    className="form-control"
-                    style={{ margin: '10px', width: '90%' }}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                
-                  {filteredUsers.length > 0 ? (
-                    filteredUsers.slice(0, 4).map((user, index) => (
-                      <Dropdown.Item
-                        key={index}
-                        onClick={() => handleUserSelect(user.userName)} 
-                      >
-                        {user.userName}
-                      </Dropdown.Item>
-                    ))
-                  ) : (
-                    <Dropdown.Item disabled>No users found</Dropdown.Item>
-                  )}
-                  {filteredUsers.length > 4 && (
-                    <Dropdown.Item disabled>{`${filteredUsers.length - 4} more users available...`}</Dropdown.Item>
-                  )}
-                </Dropdown.Menu>
-              </Dropdown>
-            </div>
-          </div>
-        )}
+        <Dropdown.Menu style={{ maxHeight: '200px' }}>
+          <input
+            type="text"
+            placeholder="Search user..."
+            className="form-control"
+            style={{ margin: '10px', width: '90%' }}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+
+          {filteredUsers.length > 0 ? (
+            filteredUsers.slice(0, 4).map((user, index) => (
+              <Dropdown.Item key={index} onClick={() => handleUserSelect(user.userName)}>
+                {user.userName}
+              </Dropdown.Item>
+            ))
+          ) : (
+            <Dropdown.Item disabled>No users found</Dropdown.Item>
+          )}
+          {filteredUsers.length > 4 && (
+            <Dropdown.Item disabled>{`${filteredUsers.length - 4} more users available...`}</Dropdown.Item>
+          )}
+        </Dropdown.Menu>
+      </Dropdown>
+    </div>
+  </div>
+)}
+
 
         <Outlet context={{ searchTerm: userName, isSearchTriggered: true }} />
         <Outlet />

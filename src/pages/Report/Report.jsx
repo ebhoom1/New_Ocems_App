@@ -121,10 +121,10 @@ const Report = () => {
          
           <div className="row">
             <div className="col-12 col-md-12 grid-margin">
-              <div className="card m-1">
+              <div className="card m-1 mt-3">
                 <div className="card-body">
                   <h1 className='text-center mt-3'>Validate Data</h1>
-                  <form className='m-5 p-5' onSubmit={handleCheckValidate}>
+                  <form className='m-1 p-1' onSubmit={handleCheckValidate}>
                     <div className="row">
                   
                       <div className="col-lg-6 mb-4">

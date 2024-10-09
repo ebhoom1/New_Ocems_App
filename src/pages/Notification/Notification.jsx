@@ -120,7 +120,7 @@ function Notification() {
                             </div>
                             <div className="card m-1">
                                 <div className="card-body">
-                                    <form className="m-5" onSubmit={handleSubmit}>
+                                    <form className=" calibcard" onSubmit={handleSubmit}>
                                         <div className="row">
                                             {/* User ID */}
                                             <div className="col-lg-6 col-md-6 mb-4">

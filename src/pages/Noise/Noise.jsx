@@ -203,7 +203,7 @@ const Noise = () => {
       </div>
 
       <footer className="footer">
-        <div className="container-fluid clearfix">
+        <div className="container-fluid clearfix text-center mt-3">
           <span className="d-block text-center text-sm-left d-sm-inline-block">
             Copyright ©2023{" "}
             <a href="https://ebhoom.com" target="_blank" rel="noopener noreferrer">

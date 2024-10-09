@@ -245,7 +245,7 @@ const Airambient = () => {
 
   {/* Stack II Parameters */}
   {!loading && airParameters.filter(param => param.name.includes("stack_2")).map((item, index) => (
-    <div className="col-12 col-md-4 grid-margin" key={index}>
+    <div className="col-12 mb-2 col-md-4 grid-margin" key={index}>
       <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
         <div className="card-body">
           <div className="row">
@@ -274,7 +274,7 @@ const Airambient = () => {
 
   {/* Stack II Parameters */}
   {!loading && airParameters.filter(param => param.name.includes("STACK_32_Ammonia")).map((item, index) => (
-    <div className="col-12 col-md-4 grid-margin" key={index}>
+    <div className="col-12 mb-2 col-md-4 grid-margin" key={index}>
       <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
         <div className="card-body">
           <div className="row">
