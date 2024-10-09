@@ -73,6 +73,7 @@ function Sidebar() {
   };
 
   return (
+    <div className="sidebar-container">
     <aside>
     <div className="description">Drag a shape to the canvas.</div>
     <div className="shapes-container">
@@ -96,6 +97,7 @@ function Sidebar() {
       ))}
     </div>
   </aside>
+  </div>
   );
 }
 

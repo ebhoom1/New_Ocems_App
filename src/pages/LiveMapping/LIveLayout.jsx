@@ -38,7 +38,7 @@ function LIveLayout() {
                           <Sidebar />
                         </div>
                         {/* Canvas Area */}
-                        <div className="col-md-9 shadow" style={{ height: '80vh', border: '2px solid #236a80', borderRadius: '8px', padding: '10px' }}>
+                        <div className="col-md-9 shadow" >
                           <Canvas />
                         </div>
                       </div>

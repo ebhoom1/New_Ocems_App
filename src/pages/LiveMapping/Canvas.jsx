@@ -98,6 +98,8 @@ const onResizeStop = () => {
   };
   
   return (
+    <div className="react-flow-container">
+      <div className="react-flow-scrollable">
     <div className="reactflow-wrapper" style={{ width: '100%', height: '600px' }}>
         <div className='d-flex justify-content-end'><button className='btn btn-success'>Save</button></div>
       <ReactFlow
@@ -117,6 +119,8 @@ const onResizeStop = () => {
         <Controls />
         <Background />
       </ReactFlow>
+    </div>
+    </div>
     </div>
   );
 }

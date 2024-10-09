@@ -14,4 +14,25 @@ aside {
     justify-content: center;
     align-items: center;
   }
-  
+  /* Adding border and making the sidebar scrollable */
+.sidebar-container {
+  border: 2px solid #236a80;
+  padding: 10px;
+  height: 100vh; /* Full height */
+  overflow-y: auto; /* Make it scrollable */
+  box-sizing: border-box; /* Ensure padding is included in the width/height */
+}
+.react-flow-container {
+  border: 2px solid #236a80; /* Add border with the required color */
+  padding: 10px;
+  height: 100vh; /* Adjust the height as needed */
+  width: 100%; /* Full width */
+  overflow: hidden; /* Ensure React Flow is inside the container */
+  position: relative; /* Important to keep elements inside */
+  border-radius:10px ;
+}
+
+.react-flow-scrollable {
+  height: 100%; 
+  overflow: auto; /* Make the container scrollable if content exceeds */
+}
