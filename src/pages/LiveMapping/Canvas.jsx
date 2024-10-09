@@ -21,10 +21,6 @@ function Canvas() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [isDragging, setIsDragging] = useState(false);
 
-  const [showDeleteBox, setShowDeleteBox] = useState(false);
-  const [selectedNodeId, setSelectedNodeId] = useState(null);
-  const [boxPosition, setBoxPosition] = useState({ x: 0, y: 0 });
-
   const onDragStart = () => {
     setIsDragging(true);
   };
@@ -82,7 +78,12 @@ function Canvas() {
       id: `${parsedShapeData.id}_${nodes.length}`,
       type: 'svgNode',
       position,
-      data: { label: parsedShapeData.label, svgPath: parsedShapeData.svgPath, backendValue },
+      data: { 
+        label: parsedShapeData.label, 
+        svgPath: parsedShapeData.svgPath, 
+        backendValue,
+        onDelete: handleDeleteNode, // Pass handleDeleteNode to each node's data
+      },
     };
 
     setNodes((nds) => nds.concat(newNode));
@@ -100,27 +101,8 @@ function Canvas() {
     return '';
   };
 
-  // Double-click event handler
-  const handleNodeDoubleClick = (event, nodeId) => {
-    const canvasBounds = document.querySelector('.reactflow-wrapper').getBoundingClientRect();
-
-    // Set the position of the delete box relative to the canvas, based on the mouse click position
-    setBoxPosition({ 
-      x: event.clientX - canvasBounds.left, 
-      y: event.clientY - canvasBounds.top 
-    });
-
-    setSelectedNodeId(nodeId); // Set the selected node for deletion
-    setShowDeleteBox(true); // Show the delete box
-  };
-
-  const handleDeleteNode = () => {
-    setNodes((nds) => nds.filter((node) => node.id !== selectedNodeId)); // Delete the selected node
-    setShowDeleteBox(false); // Hide the delete box after deletion
-  };
-
-  const handleCloseBox = () => {
-    setShowDeleteBox(false); // Close the delete box without deleting
+  const handleDeleteNode = (nodeId) => {
+    setNodes((nds) => nds.filter((node) => node.id !== nodeId)); // Delete the selected node
   };
 
   return (
@@ -131,14 +113,19 @@ function Canvas() {
             <button className="btn btn-success">Save</button>
           </div>
           <ReactFlow
-            nodes={nodes}
+            nodes={nodes.map((node) => ({
+              ...node,
+              data: {
+                ...node.data,
+                onDelete: handleDeleteNode, // Pass handleDeleteNode to each node's data
+              },
+            }))}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onDragOver={onDragOver}
             onDrop={onDrop}
-            onNodeDoubleClick={(event, node) => handleNodeDoubleClick(event, node.id)}
             nodeTypes={nodeTypes}
             style={{
               pointerEvents: isDragging ? 'none' : 'auto',
@@ -149,37 +136,9 @@ function Canvas() {
           </ReactFlow>
         </div>
       </div>
-
-      {/* Conditionally render the Delete box */}
-      {showDeleteBox && (
-        <div
-          style={{
-            position: 'absolute',
-            left: boxPosition.x,
-            top: boxPosition.y,
-            backgroundColor: 'white',
-            border: '1px solid #ccc',
-            padding: '10px',
-            zIndex: 1000,
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.68)',
-          }}
-        >
-          <div className="d-flex justify-content-between">
-            <button onClick={handleCloseBox} style={{ background: 'none', border: 'none' }}>
-              &#x2716;
-            </button>
-          </div>
-          <button
-            className="btn btn-danger"
-            onClick={handleDeleteNode}
-            style={{ marginTop: '10px', width: '100%' }}
-          >
-            Delete
-          </button>
-        </div>
-      )}
     </div>
   );
 }
 
 export default Canvas;
+  
