@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import logo from '../../assests/images/ebhoom.png';
+import logo from '../../assests/images/ebhoom.png'; // Corrected image path
 import { Row, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,15 +17,14 @@ function LoginNew() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userData } = useSelector((state) => state.user);
-/*   const { latestData, error } = useSelector((state) => state.iotData);
- */  const [showPopup, setShowPopup] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
   const [searchError, setSearchError] = useState("");
   const [currentUserName, setCurrentUserName] = useState("KSPCB001");
   const [companyName, setCompanyName] = useState("");
-  const [loadingload, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // Use consistent loading state
 
   const [passShow, setPassShow] = useState(false);
   const [inpval, setInpval] = useState({
@@ -36,9 +35,8 @@ function LoginNew() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const { loading, error } = useSelector((state) => state.auth);
 
-  const waterParameters = [
+  const [waterParams] = useState([
     { parameter: "Ph", value: 'pH', name: 'ph' },
     { parameter: "TDS", value: 'mg/l', name: 'TDS' },
     { parameter: "Tur", value: 'Ntu', name: 'turbidity' },
@@ -47,15 +45,20 @@ function LoginNew() {
     { parameter: "COD", value: 'mg/l', name: 'COD' },
     { parameter: "TSS", value: 'mg/l', name: 'TSS' },
     { parameter: "ORP", value: 'mV', name: 'ORP' },
-  { parameter: "Nit", value: 'mg/l', name: 'nitrate' },
-   /*  { parameter: "NH₄⁺", value: 'mg/l', name: 'ammonicalNitrogen' },
-    { parameter: "DO", value: 'mg/l', name: 'DO' },
-    { parameter: "Cl⁻", value: 'mmol/l', name: 'chloride' },
-    { parameter: "Colour", value: '', name: 'color' },  */
-  ];
+    { parameter: "Nit", value: 'mg/l', name: 'nitrate' },
+  ]);
+  const [airParams] = useState([
+    { parameter: "Flow", value: 'm/s', name: "Flow" },
+    { parameter: "CO", value: 'µg/Nm³', name: "CO" },
+    { parameter: "NOX", value: 'µg/Nm³', name: "NOX" },
+    { parameter: "PM", value: 'µg/m³', name: "PM" },
+    { parameter: "SO2", value: 'µg/m³', name: "SO2" },
+    { parameter: "Temp", value: '℃', name: "AirTemperature" },
+    { parameter: "Humidity", value: '%', name: "Humidity" },
+  ]);
 
   const fetchData = async (userName) => {
-    setLoading(true);
+    setLoading(true); // Set loading true when fetching
     try {
       const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
       setSearchResult(result);
@@ -66,7 +69,7 @@ function LoginNew() {
       setCompanyName("Unknown Company");
       setSearchError(err.message || 'No Result found for this userID');
     } finally {
-      setLoading(false);
+      setLoading(false); // Set loading false after fetching
     }
   };
 
@@ -77,8 +80,8 @@ function LoginNew() {
       fetchData(currentUserName);
     }
   }, [userId, currentUserName, dispatch]);
+  
 
-  // Handle card click for displaying graphs
   const handleCardClick = (card) => {
     setSelectedCard(card);
     setShowPopup(true);
@@ -97,7 +100,6 @@ function LoginNew() {
     setShowCalibrationPopup(false);
   };
 
-  // Pagination to handle user navigation
   const handleNextUser = () => {
     const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
     if (!isNaN(userIdNumber)) {
@@ -113,6 +115,28 @@ function LoginNew() {
       setCurrentUserName(newUserId);
     }
   };
+
+  const renderBoxesWithValues = (parameters, result) => {
+    return parameters
+      .filter((item) => result && result[item.name] && result[item.name] !== 'N/A') // Filter out 'N/A' or undefined values
+      .map((item, index) => {
+        const value = result ? result[item.name] : 'N/A';
+        return (
+          <div className="col-md-4 col-12 grid-margin" key={index}>
+            <div className="card m-3" onClick={() => handleCardClick(item)}>
+              <div className="card-body">
+                <h5>{item.parameter}</h5>
+                <h6>
+                  <strong>{value}</strong> {item.value}
+                </h6>
+              </div>
+            </div>
+          </div>
+        );
+      });
+  };
+  
+
   Modal.setAppElement('#root');
 
   const setVal = (e) => {
@@ -174,7 +198,6 @@ function LoginNew() {
         .catch((error) => {
           toast.error('Invalid credentials');
           console.log("Error from catch signIn:", error);
-          localStorage.removeItem('userdatatoken');
         });
     }
   }; 
@@ -182,13 +205,14 @@ function LoginNew() {
   const handleDownloadClick = () => {
     navigate('/download-data');  // Redirect to the download-data page
   };
+
   return (
-    <div className="back" style={{ overflowY: 'hidden' , marginTop:'6%' }}>
-      <div className="row  ms-5 me-5  shadow m-5 d-flex align-items-center justify-content-center columnFirst " style={{ backgroundColor: 'white', marginTop: '6%', overflowY: 'hidden' }}>
+    <div className="back d-flex-align-items-center justify-content center" style={{ overflowY: 'hidden', marginTop: '6%' }}>
+      <div className="row ms-5 me-5 shadow m-5 d-flex align-items-center justify-content-center columnFirst" style={{ backgroundColor: 'white', marginTop: '6%', overflowY: 'hidden' }}>
         {/* Column 1 (Water parameters and company data) */}
         <div className="col-6 firstColumn p-5">
           <div className="col-lg-12 col-12">
-            {loadingload && (
+            {loading && (
               <div className="spinner-container">
                 <Oval
                   height={40}
@@ -202,7 +226,7 @@ function LoginNew() {
               </div>
             )}
 
-            {!loadingload && searchError && (
+            {!loading && searchError && (
               <div className="card mb-4">
                 <div className="card-body">
                   <h1>{searchError}</h1>
@@ -210,56 +234,29 @@ function LoginNew() {
               </div>
             )}
 
-            {!loadingload && !searchError && (
+            {!loading && !searchError && (
               <>
                 <div className="d-flex justify-content-between align-items-center">
-                  <button onClick={handlePrevUser} disabled={loadingload || currentUserName === "KSPCB001"} className='btn btn-outline-dark'>
+                  <button onClick={handlePrevUser} disabled={loading || currentUserName === "KSPCB001"} className='btn btn-outline-dark'>
                     <i className="fa-solid fa-arrow-left me-1"></i> Prev
                   </button>
-                  <h4 className="text-center">Water Dashboard</h4>
-                  <button onClick={handleNextUser} disabled={loadingload} className='btn btn-outline-dark'>
+                  <button onClick={handleNextUser} disabled={loading} className='btn btn-outline-dark'>
                     Next <i className="fa-solid fa-arrow-right"></i>
                   </button>
                 </div>
                 <h4 className="text-center mt-2">{companyName}</h4>
-                <div className="row mt-4">
-                  {waterParameters.map((item, index) => (
-                    <div className="col-md-4 col-12 grid-margin" key={index}>
-                      <div className="card m-3" onClick={() => handleCardClick(item)}>
-                        <div className="card-body">
-                          <h5>{item.parameter}</h5>
-                          <h6>
-                            <strong>
-                              {searchResult ? searchResult[item.name] || 'N/A' : 'No Data'}
-                            </strong>
-                            {item.value}
-                          </h6>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="row mt-4 " >
+                  {renderBoxesWithValues(waterParams, searchResult)}
+                  {renderBoxesWithValues(airParams, searchResult)}
                 </div>
-
-                {/* Optionally, if you have a popup component for graphs */}
-                {/* {showPopup && selectedCard && (
-                  <WaterGraphPopup
-                    show={showPopup}
-                    handleClose={handleClosePopup}
-                    parameter={selectedCard.parameter}
-                    userName={currentUserName}
-                  />
-                )} */}
-
-                {/* Calibration Popup */}
-               
               </>
             )}
           </div>
         </div>
 
-        {/* Column 2 (Static content) */}
+        {/* Column 2 (Login Form) */}
         <div className="col-6 loginColumn">
-          <div className='bg-light  rounded shadow w-100' style={{ maxWidth: '500px', padding: '20px' }}>
+          <div className='bg-light rounded shadow w-100' style={{ maxWidth: '500px', padding: '20px' }}>
             <div className="d-flex align-items-center justify-content-between w-100 flex-nowrap" style={{ paddingTop: "10px" }}>
               <img className='ms-2' src={logo} alt="Logo" style={{ height: '30px', width: 'auto' }} />
               <div className='me-2'>
@@ -296,9 +293,7 @@ function LoginNew() {
                   </div>
                   <div className='d-flex justify-content-between mb-2'>
                     <div className="showpass" onClick={() => setPassShow(!passShow)}>
-                      {/* Show/Hide password functionality can be added here */}
                       {passShow ? "Hide" : "Show"}
-
                     </div>
                     <Link to={'/reset'} style={{ textDecoration: 'none' }}>Forgot Password</Link>
                   </div>

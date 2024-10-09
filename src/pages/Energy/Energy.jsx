@@ -125,7 +125,7 @@ function Energy() {
 
             <div className="card mb-4">
               <div className="card-body">
-                <h1>{searchResult ? `User: ${searchResult}` : searchError}</h1>
+               {/*  <h1>energy</h1> */}
               </div>
             </div>
 
@@ -201,9 +201,10 @@ function Energy() {
             <footer className="footer">
               <div className="container-fluid clearfix">
                 <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
-                  AquaBox Control and Monitor System
+               
                 </span>
                 <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
+                AquaBox Control and Monitor System <br />
                   © <a href="https://www.ebhoom.com" target="_blank">Ebhoom</a> 2022
                 </span>
               </div>

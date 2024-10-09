@@ -151,7 +151,7 @@ function DownloadData() {
                                         required
                                         min={subscriptionDate} // Set the minimum date as the subscription date
                                         disabled={!subscriptionDate}
-                                        style={{ width: '100%', padding: '15px', borderRadius: '10px' }} // Disable if no subscription date available
+                                        style={{ width: '100%', padding: '15px', borderRadius: '10px' , border:'none' }} // Disable if no subscription date available
                                     />
                                     {subscriptionDate && (
                                         <small style={{color:'red'}}>Available from: {moment(subscriptionDate).format('DD-MM-YYYY')}</small>
@@ -168,7 +168,7 @@ function DownloadData() {
                                         className="input-field"
                                         value={dateTo}
                                         onChange={(e) => setDateTo(e.target.value)}
-                                        style={{ width: '100%', padding: '15px', borderRadius: '10px' }}
+                                        style={{ width: '100%', padding: '15px', borderRadius: '10px', border:'none' }}
                                         required
                                     />                                        </div>
                                     </div>
