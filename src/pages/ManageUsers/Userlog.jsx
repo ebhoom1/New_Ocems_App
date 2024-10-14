@@ -522,6 +522,14 @@ const handleSubmitDelete =async(e)=>{
             </div>
            
         </div>
+        <div className="row" style={{overflowX:'hidden'}}>
+          <div className="col-12 col-md-12 grid-margin">
+          <div className="col-12 d-flex justify-content-between align-items-center m-3">
+      <h1 className='text-center mt-5'>Add Stack</h1>
+    </div>
+          </div>
+
+        </div>
 
         {/* delete user */}
         <div className="row" style={{overflowX:'hidden'}}>
