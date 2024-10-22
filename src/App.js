@@ -52,6 +52,7 @@ import Mainsam from './pages/Maindashboard/Mainsam';
 import Chat from './pages/Chat/Chat';
 import LIveLayout from './pages/LiveMapping/LIveLayout';
 import ViewComponent from './pages/Water/ViewComponent';
+import EnergyLayout from './pages/Energy/EnergyLayout';
 
 function App() {
   const dispatch = useDispatch();
@@ -113,7 +114,7 @@ function App() {
                   <Route path="/ambient" element={<Airambient />} />
                   <Route path="/water" element={<Water />} />
                   <Route path="/noise" element={<Noise />} />
-                  <Route path="/energy" element={<Energy />} />
+                  <Route path="/energy" element={<EnergyLayout />} />
                   <Route path="/download-data" element={<Download />} />
                   <Route path="/add-calibration" element={<Calibrationpage />} />
                   <Route path="/view-calibration" element={<ViewCalibration />} />

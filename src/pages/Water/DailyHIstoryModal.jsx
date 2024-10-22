@@ -4,44 +4,45 @@ import { Oval } from 'react-loader-spinner';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import moment from 'moment';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { API_URL } from '../../utils/apiConfig';
-import './index.css'
+import { fetchStackNameByUserName } from '../../redux/features/userLog/userLogSlice';
+import './index.css';
 
-Modal.setAppElement('#root'); // Properly set the app element for accessibility
+Modal.setAppElement('#root');
 
 const customStyles = {
-    content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      width: 'fit-content',
-      height: '440px',
-      padding: '20px',
-      border: '1px solid #ccc',
-      borderRadius: '10px',
-      zIndex: 9999,  // Make sure modal is on top of everything
-      position: 'fixed',  // Ensure it stays fixed in the viewport
-    },
-    overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',  // Darken the background
-      zIndex: 9998,  // Make sure overlay is just below the modal content
-    },
-  };
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    width: 'fit-content',
+    height: '500px',
+    padding: '20px',
+    border: '1px solid #ccc',
+    borderRadius: '10px',
+  },
+  overlay: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+};
 
 const DailyHistoryModal = ({ isOpen, onRequestClose }) => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [userName, setUserName] = useState('');
+  const [stackName, setStackName] = useState('');
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
+  const [stackOptions, setStackOptions] = useState([]);
   const [subscriptionDate, setSubscriptionDate] = useState('');
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
   const navigate = useNavigate();
   const { userType, userData } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (userType === 'admin') {
@@ -56,39 +57,53 @@ const DailyHistoryModal = ({ isOpen, onRequestClose }) => {
       };
       fetchUsers();
     } else if (userType === 'user' && userData?.validUserOne?.userName) {
-      setUserName(userData.validUserOne.userName);
-      setSubscriptionDate(userData.validUserOne.subscriptionDate);  // Set the subscription date for the user
+      const loggedUserName = userData.validUserOne.userName;
+      setUserName(loggedUserName);
+      setSubscriptionDate(userData.validUserOne.subscriptionDate);
+  
+      // Automatically fetch stack names for the logged-in user
+      handleUserChange({ userName: loggedUserName });
     }
   }, [userType, userData]);
+  
 
-  const handleUserChange = (selectedUser) => {
+  const handleUserChange = async (selectedUser) => {
     setUserName(selectedUser.userName);
-    setSubscriptionDate(selectedUser.subscriptionDate);  // Set the subscription date for the selected user (admin case)
+    setSubscriptionDate(selectedUser.subscriptionDate);
+  
+    try {
+      const result = await dispatch(fetchStackNameByUserName(selectedUser.userName)).unwrap();
+      
+      // Ensure we map the stack names to an array of strings
+      const stackNames = result.map((stack) => stack.name); 
+      setStackOptions(stackNames);
+    } catch (error) {
+      console.error('Error fetching stack names:', error);
+      alert('Failed to fetch stack names for the selected user.');
+    }
   };
-
+  
   const handleViewClick = async () => {
-    if (fromDate && toDate && userName) {
+    if (fromDate && toDate && userName && stackName) {
       const isSameDate = moment(fromDate).isSame(moment(toDate), 'day');
 
-      // Check if both dates are the same for the view functionality
       if (isSameDate) {
-        alert("Both From Date and To Date must be different to view the data. You can use the same dates for downloading.");
-        return; // Exit if trying to view data with same dates
+        alert('Both From Date and To Date must be different to view the data. Use the same dates for download.');
+        return;
       }
 
-      // Check if the date range exceeds 7 days
       const dateDifference = moment(toDate).diff(moment(fromDate), 'days');
       if (dateDifference > 7) {
-        alert("You can view only one week's data. If you want to see more, please use the download option.");
-        return; // Exit if the date range is more than 7 days
+        alert("You can view only one week's data. Please use download for larger ranges.");
+        return;
       }
 
       setLoading(true);
       try {
         const formattedFromDate = moment(fromDate).format('DD-MM-YYYY');
         const formattedToDate = moment(toDate).format('DD-MM-YYYY');
-        const response = await axios.get(`${API_URL}/api/view-data-by-date-user`, {
-          params: { fromDate: formattedFromDate, toDate: formattedToDate, userName },
+        const response = await axios.get(`${API_URL}/api/view-data-by-date-user-stack`, {
+          params: { fromDate: formattedFromDate, toDate: formattedToDate, userName, stackName },
         });
         const data = response.data.data;
         setLoading(false);
@@ -102,38 +117,37 @@ const DailyHistoryModal = ({ isOpen, onRequestClose }) => {
   };
 
   const handleDownloadClick = async (selectedFormat) => {
-    if (!fromDate || !toDate || !userName) {
+    if (!fromDate || !toDate || !userName || !stackName) {
       alert('Please fill in all fields');
       return;
     }
 
     const formattedFromDate = moment(fromDate).format('DD-MM-YYYY');
     const formattedToDate = moment(toDate).format('DD-MM-YYYY');
-    const fileFormat = selectedFormat;
 
     try {
-      const response = await axios.get(`${API_URL}/api/downloadIotDataByUserName`, {
-        params: { fromDate: formattedFromDate, toDate: formattedToDate, userName, format: fileFormat },
+      const response = await axios.get(`${API_URL}/api/downloadIotDataByUserNameAndStackName`, {
+        params: { fromDate: formattedFromDate, toDate: formattedToDate, userName, stackName, format: selectedFormat },
         responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `iot_data_${formattedFromDate}_to_${formattedToDate}.${fileFormat}`);
+      link.setAttribute('download', `iot_data_${formattedFromDate}_to_${formattedToDate}.${selectedFormat}`);
       document.body.appendChild(link);
       link.click();
       link.remove();
     } catch (error) {
       console.error('Error downloading data:', error);
-      alert('Failed to download data');
+      alert('Failed to download data.');
     }
   };
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={customStyles}>
-      <div className="modal-header d-flex justify-content-between">
+      <div className="modal-header">
         <h5 className="modal-title">Select Date Range</h5>
-        <button type="button" className="closebtn" onClick={onRequestClose}>
+        <button type="button" className="close" onClick={onRequestClose}>
           &times;
         </button>
       </div>
@@ -157,14 +171,27 @@ const DailyHistoryModal = ({ isOpen, onRequestClose }) => {
         ) : (
           <div className="form-group">
             <label>User Name:</label>
-            <input
-              type="text"
-              className="form-control"
-              value={userName}
-              readOnly
-            />
+            <input type="text" className="form-control" value={userName} readOnly />
           </div>
         )}
+        <div className="form-group">
+          <label>Station Name</label>
+          <select
+  className="form-control"
+  value={stackName}
+  onChange={(e) => setStackName(e.target.value)}
+  disabled={!stackOptions.length}
+>
+  <option value="">Select</option>
+  {stackOptions.map((stack, index) => (
+    <option key={index} value={stack}>
+      {stack}
+    </option>
+  ))}
+</select>
+
+
+        </div>
         <div className="form-group">
           <label>From Date (Subscription Date: {moment(subscriptionDate).format('DD-MM-YYYY')}):</label>
           <input
@@ -177,35 +204,24 @@ const DailyHistoryModal = ({ isOpen, onRequestClose }) => {
         </div>
         <div className="form-group">
           <label>To Date:</label>
-          <input
-            type="date"
-            className="form-control"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-          />
+          <input type="date" className="form-control" value={toDate} onChange={(e) => setToDate(e.target.value)} />
         </div>
       </div>
-      <div className="modal-footer mt-2">
-        <div className="btn-group ">
+      <div className="modal-footer">
+        <div className="btn-group">
           <button
-            className="btn btn-success dropdown-toggle me-2"
+            className="btn btn-success dropdown-toggle"
             onClick={() => setShowDownloadOptions(!showDownloadOptions)}
-            disabled={!fromDate || !toDate || !userName}
+            disabled={!fromDate || !toDate || !userName || !stackName}
           >
             Download
           </button>
           {showDownloadOptions && (
             <div className="dropdown-menu show">
-              <button
-                className="dropdown-item"
-                onClick={() => handleDownloadClick('csv')}
-              >
+              <button className="dropdown-item" onClick={() => handleDownloadClick('csv')}>
                 Download as CSV
               </button>
-              <button
-                className="dropdown-item"
-                onClick={() => handleDownloadClick('pdf')}
-              >
+              <button className="dropdown-item" onClick={() => handleDownloadClick('pdf')}>
                 Download as PDF
               </button>
             </div>
@@ -214,7 +230,7 @@ const DailyHistoryModal = ({ isOpen, onRequestClose }) => {
         <button
           className="btn btn-primary"
           onClick={handleViewClick}
-          disabled={loading || !fromDate || !toDate || !userName}
+          disabled={loading || !fromDate || !toDate || !userName || !stackName}
         >
           {loading ? <Oval height={20} width={20} color="#fff" secondaryColor="#ddd" /> : 'View'}
         </button>

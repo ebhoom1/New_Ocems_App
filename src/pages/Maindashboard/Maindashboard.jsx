@@ -43,7 +43,7 @@ function Maindashboard() {
             <div className='d-flex justify-content-between gap-2 w-100'>
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav" >
-                <Nav className="w-100 justify-content-evenly">
+                <Nav className="w-100 justify-content-evenly ">
                   <Nav.Link href="/water">Effluent</Nav.Link>
                   <Nav.Link href="/ambient">Stack Emmission </Nav.Link>
                   <Nav.Link href="/noise">Noise</Nav.Link>

@@ -9,6 +9,7 @@ import { Oval } from 'react-loader-spinner';
 import DashboardSam from '../Dashboard/DashboardSam';
 import Hedaer from '../Header/Hedaer';
 import Maindashboard from '../Maindashboard/Maindashboard';
+import DailyHistoryModal from '../Water/DailyHIstoryModal';
 
 const Noise = () => {
   const outletContext = useOutletContext() || {};
@@ -26,7 +27,8 @@ const Noise = () => {
   const [currentUserName, setCurrentUserName] = useState("KSPCB001");
   const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedStack, setSelectedStack] = useState("all");
   const fetchUserData = async (userName) => {
     setLoading(true);
     try {
@@ -87,6 +89,15 @@ const Noise = () => {
       fetchUserData(newUserId);
     }
   };
+/* stack */
+const handleStackChange = (event) => {
+  setSelectedStack(event.target.value);
+};
+
+
+const noiseParameters = [
+  { parameter: "Noise Level", value: 'dB', name: 'DB' },  // Ensure name matches "DB"
+];
 
   return (
     <div className="container-fluid">
@@ -124,29 +135,70 @@ const Noise = () => {
             </div>
           </div>
 
-          <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap justify-content-between">
-            {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
-              <h5>Data Interval: <span className="span-class">{userData.validUserOne.dataInteval}</span></h5>
-            )}
-            {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
-              <button type="button" onClick={handleOpenCalibrationPopup} className="btn mb-2 mt-2" style={{backgroundColor: '#236a80', border: 'none'}}>
-                Calibration
-              </button>
-            )}
-          </div>
-
-          <div className='d-flex justify-content-end'>
-            {latestData && (
-              <>
-                <h5>Analyser Health:</h5>
-                {searchResult?.validationStatus ? (
-                  <h5 style={{ color: "green" }}>Good</h5>
-                ) : (
-                  <h5 style={{ color: "red" }}>Problem</h5>
+       
+          <div className="d-flex justify-content-between">
+                <ul className="quick-links ml-auto mt-2">
+                    <button className="btn mb-2 mt-2" style={{ backgroundColor: '#236a80', color: 'white' }} onClick={() => setShowHistoryModal(true)}>
+                      Daily History
+                    </button>
+                  </ul>
+                  
+                 
+                 
+                  <ul className="quick-links ml-auto">
+                {latestData && (
+                  <>
+                      <h5 className='d-flex justify-content-end mt-2'>
+                      <b>Analyser Health:</b><span className={searchResult?.validationStatus ? 'text-success' : 'text-danger'}>
+                        {searchResult?.validationStatus ? 'Good' : 'Problem'}
+                      </span>
+                    </h5>
+                  </>
                 )}
-              </>
-            )}
-          </div>
+              </ul>
+
+                </div>
+                <div className="d-flex justify-content-between">
+                  {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
+                    <ul className="quick-links ml-auto">
+                      <button type="submit" onClick={handleOpenCalibrationPopup} className="btn mb-2 mt-2" style={{ backgroundColor: '#236a80', color: 'white' }}> Calibration </button>
+                    </ul>
+                  )}
+                  <ul className="quick-links ml-auto">
+                    {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
+                      <h5>Data Interval: <span className="span-class">{userData.validUserOne.dataInteval}</span></h5>
+                    )}
+                  </ul>
+
+
+                </div>
+                <div className="row align-items-center">
+        <div className="col-md-4">
+    {/* Dropdown for Stack Names */}
+    {searchResult?.stackData && searchResult.stackData.length > 0 && (
+      <div className="stack-dropdown">
+        <label htmlFor="stackSelect" className="label-select">Select Station:</label>
+        <div className="styled-select-wrapper">
+          <select
+            id="stackSelect"
+            className="form-select styled-select"
+            value={selectedStack}
+            onChange={handleStackChange}
+          >
+            <option value="all">All Stacks</option> {/* Default option to show all stacks */}
+            {searchResult.stackData.map((stack, index) => (
+              <option key={index} value={stack.stackName}>
+                {stack.stackName}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
+         
 
           {searchError && (
             <div className="card mb-4">
@@ -155,35 +207,61 @@ const Noise = () => {
               </div>
             </div>
           )}
-
-          {loading ? (
-            <div className="spinner-container">
-              <Oval
-                height={60}
-                width={60}
-                color="#236A80"
-                ariaLabel="Fetching details"
-                secondaryColor="#e0e0e0"
-                strokeWidth={2}
-                strokeWidthSecondary={2}
-              />
-            </div>
-          ) : (
-            <div className="card my-5 justify-content-start" onClick={() => handleCardClick({ title: 'Noise Level' })} style={{ maxWidth: '400px' }}>
-              <div className="card-body">
-                <form className='m-4 p-4'>
-                  <div className="row">
-                    <div>
-                      <h3 className='text-center'><b>Limits in DB</b></h3>
+ {loading && (
+          <div className="spinner-container">
+            <Oval
+              height={60}
+              width={60}
+              color="#236A80"
+              ariaLabel="Fetching details"
+              secondaryColor="#e0e0e0"
+              strokeWidth={2}
+              strokeWidthSecondary={2}
+            />
+          </div>
+        )}
+          <div className="row">
+          {!loading && searchResult && searchResult.stackData && (
+            <>
+              {searchResult.stackData.map((stack, stackIndex) => (
+                (selectedStack === "all" || selectedStack === stack.stackName) && (
+                  <div key={stackIndex} className="col-12 mb-4">
+                    <div className="stack-box mt-2">
+                      <h2 className="text-center" style={{color:'#236a80'}}><b>{stack.stackName}</b></h2>
+                      <div className="row">
+                        {noiseParameters.map((item, index) => {
+                          const value = stack[item.name];
+                          return value && value !== 'N/A' ? (
+                            <div className="col-12 col-md-4 grid-margin" key={index}>
+                              <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
+                                <div className="card-body">
+                                  <div className="row">
+                                    <div className="col-12">
+                                      <h3 className="mb-3">{item.parameter}</h3>
+                                    </div>
+                                    <div className="col-12 mb-3">
+                                      <h6>
+                                        <strong className="strong-value" style={{ color: '#236A80' }}>
+                                          {value}
+                                        </strong>
+                                        <span>{item.value}</span>
+                                      </h6>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
                     </div>
-                    <h4 className='text-center'>
-                      {searchResult ? searchResult.db || 'N/A' : 'N/A'} dB
-                    </h4>
                   </div>
-                </form>
-              </div>
-            </div>
+                )
+              ))}
+            </>
           )}
+        </div>
+            
 
           {showPopup && selectedCard && (
             <NoiseGraphPopup
@@ -213,6 +291,12 @@ const Noise = () => {
           </span>
         </div>
       </footer>
+      <DailyHistoryModal
+          isOpen={showHistoryModal}
+          onRequestClose={() => setShowHistoryModal(false)}
+          fetchData={fetchUserData}
+          downloadData={() => {}}
+        />
     </div>
   );
 };

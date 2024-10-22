@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { API_URL } from '../../utils/apiConfig';
 import moment from 'moment';
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';  // Toastify styles
-import logo from '../../assests/images/ebhoom.png';  // Import logo
+import 'react-toastify/dist/ReactToastify.css';
+import logo from '../../assests/images/ebhoom.png';
 import { useNavigate } from 'react-router-dom';
 import FooterM from '../FooterMain/FooterM';
 
@@ -12,11 +12,13 @@ const Download = () => {
     const [dateFrom, setDateFrom] = useState("");
     const [dateTo, setDateTo] = useState("");
     const [userName, setUserName] = useState("");
-    const [company, setCompany] = useState("");
-    const [format, setFormat] = useState("csv"); // Default format
+    const [stackName, setStackName] = useState("");
+    const [format, setFormat] = useState("csv");
     const [users, setUsers] = useState([]);
-    const [subscriptionDate, setSubscriptionDate] = useState(""); // New state for subscription date
+    const [stackOptions, setStackOptions] = useState([]);
+    const [subscriptionDate, setSubscriptionDate] = useState("");
     const navigate = useNavigate();
+
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -28,69 +30,67 @@ const Download = () => {
                 toast.error("Error fetching users");
             }
         };
-
         fetchUsers();
     }, []);
 
-    // Update the subscriptionDate when a user is selected
-    const handleUserChange = (e) => {
+    const handleUserChange = async (e) => {
         const selectedUserName = e.target.value;
         setUserName(selectedUserName);
 
-        // Find the selected user's subscription date
         const selectedUser = users.find(user => user.userName === selectedUserName);
-        if (selectedUser && selectedUser.subscriptionDate) {
-            // Set the subscription date
+        if (selectedUser) {
             setSubscriptionDate(moment(selectedUser.subscriptionDate).format('YYYY-MM-DD'));
+
+            try {
+                const response = await axios.get(`${API_URL}/api/get-stacknames-by-userName/${selectedUserName}`);
+                setStackOptions(response.data.stackNames || []);
+            } catch (error) {
+                console.error("Error fetching stack names:", error);
+                toast.error("Failed to fetch stack names");
+            }
         } else {
-            setSubscriptionDate(""); // Clear if no subscription date found
+            setSubscriptionDate("");
+            setStackOptions([]);
         }
     };
 
     const handleDownload = async (e) => {
         e.preventDefault();
 
-        if (!userName || !dateFrom || !dateTo) {
+        if (!userName || !stackName || !dateFrom || !dateTo) {
             toast.error("Please fill in all fields.");
             return;
         }
 
-        const formattedDateFrom = moment(dateFrom).format('DD-MM-YYYY');
-        const formattedDateTo = moment(dateTo).format('DD-MM-YYYY');
-
-        // Construct the query string
-        const queryParams = {
-            fromDate: formattedDateFrom,
-            toDate: formattedDateTo,
-            userName: userName.trim(),
-            format: format
-        };
-
-        const queryString = Object.entries(queryParams)
-            .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-            .join('&');
-
-        const requestUrl = `${API_URL}/api/downloadIotDataByUserName?${queryString}`;
-
-        console.log('Request URL:', requestUrl); // Debug the URL
+        const formattedFromDate = moment(dateFrom).format('DD-MM-YYYY');
+        const formattedToDate = moment(dateTo).format('DD-MM-YYYY');
 
         try {
-            const response = await axios.get(requestUrl, { responseType: 'blob' });
+            const response = await axios.get(`${API_URL}/api/downloadIotDataByUserNameAndStackName`, {
+                params: {
+                    fromDate: formattedFromDate,
+                    toDate: formattedToDate,
+                    userName: userName.trim(),
+                    stackName: stackName.trim(),
+                    format: format,
+                },
+                responseType: 'blob',
+            });
 
-            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const blob = new Blob([response.data], { type: format === 'pdf' ? 'application/pdf' : 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `iot_data.${format}`);
+            link.setAttribute('download', `iot_data_${formattedFromDate}_to_${formattedToDate}.${format}`);
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link); // Clean up the link element
+            document.body.removeChild(link);
             toast.success(`IoT Data downloaded successfully in ${format} format`);
         } catch (error) {
             console.error("Error downloading data:", error);
-            toast.error(`Error in downloading IoT data`);
+            toast.error("Error in downloading IoT data");
         }
     };
-
 
     const handleHome = () => {
         navigate('/');
@@ -99,80 +99,92 @@ const Download = () => {
     return (
         <div>
             <div className="row" style={{ overflowX: 'hidden' }}>
-                <div className="col-12 col-md-12 grid-margin">
+                <div className="col-12 grid-margin">
                     <div className="col-12 d-flex justify-content-between align-items-center m-3 p-5">
-                        <img src={logo} alt="" />
-                        <button className='btn' onClick={handleHome} style={{ backgroundColor: 'white' }}>Home</button>
+                        <img src={logo} alt="Ebhoom Logo" />
+                        <button className="btn" onClick={handleHome} style={{ backgroundColor: 'white' }}>Home</button>
                     </div>
-                    <h1 className='text-center mt-5'>Download IoT Data</h1>
+                    <h1 className="text-center mt-5">Download IoT Data</h1>
                     <div className="card ms-2 me-2">
                         <div className="card-body">
-                            <form className='p-5' onSubmit={handleDownload}>
+                            <form className="p-5" onSubmit={handleDownload}>
                                 <div className="row">
-                                    {/* Select Industry */}
-                                    <div className="col-lg-6 col-md-6 mb-4">
-                                        <div className="form-group">
-                                            <label htmlFor="industry" className="form-label">Select Company</label>
-                                            <select className="input-field" onChange={handleUserChange} style={{ width: '100%', padding: '15px', borderRadius: '10px' }}>
-                                                <option>select</option>
-                                                {users.map((item) => (
-                                            <option key={item.userName} value={item.userName}>
-                                                {item.companyName}
-                                            </option>
-                                        ))}
-                                            </select>
-                                        </div>
+                                    <div className="col-lg-6 mb-4">
+                                        <label>Select Company</label>
+                                        <select className="input-field" onChange={handleUserChange} style={{ width: '100%', padding: '15px', borderRadius: '10px' }}>
+                                            <option value="">Select</option>
+                                            {users.map(user => (
+                                                <option key={user.userName} value={user.userName}>
+                                                    {user.companyName}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
 
-                                    {/* Select Company */}
-                                   
+                                    <div className="col-lg-6 mb-4">
+                                        <label>Select Station Name</label>
+                                        <select
+                                            className="input-field"
+                                            value={stackName}
+                                            onChange={(e) => setStackName(e.target.value)}
+                                            disabled={!stackOptions.length}
+                                            style={{ width: '100%', padding: '15px', borderRadius: '10px' }}
+                                        >
+                                            <option value="">Select</option>
+                                            {stackOptions.map(stack => (
+                                                <option key={stack} value={stack}>
+                                                    {stack}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
 
-                                    {/* From Date */}
-                                    <div className="col-lg-6 col-md-6 mb-4">
-                                        <div className="form-group">
-                                        <label>Date From</label> 
+                                    <div className="col-lg-6 mb-4">
+                                        <label>Date From</label>
                                         <input
-                                        type="date"
-                                        className="input-field"
-                                        value={dateFrom}
-                                        onChange={(e) => setDateFrom(e.target.value)}
-                                        required
-                                        min={subscriptionDate} // Set the minimum date as the subscription date
-                                        disabled={!subscriptionDate}
-                                        style={{ width: '100%', padding: '15px', borderRadius: '10px', border:'none' }} // Disable if no subscription date available
-                                    />
-                                    {subscriptionDate && (
-                                        <small style={{color:'red'}}>Available from: {moment(subscriptionDate).format('DD-MM-YYYY')}</small>
-                                    )}        
-                                        </div>
+                                            type="date"
+                                            className="input-field"
+                                            value={dateFrom}
+                                            onChange={(e) => setDateFrom(e.target.value)}
+                                            min={subscriptionDate}
+                                            disabled={!subscriptionDate}
+                                            style={{ width: '100%', padding: '15px', borderRadius: '10px' }}
+                                        />
+                                        {subscriptionDate && (
+                                            <small style={{ color: 'red' }}>Available from: {moment(subscriptionDate).format('DD-MM-YYYY')}</small>
+                                        )}
                                     </div>
 
-                                    {/* To Date */}
-                                    <div className="col-lg-6 col-md-6 mb-4">
-                                        <div className="form-group">
-                                        <label>Date To</label>            
+                                    <div className="col-lg-6 mb-4">
+                                        <label>Date To</label>
                                         <input
-                                        type="date"
-                                        className="input-field"
-                                        value={dateTo}
-                                        onChange={(e) => setDateTo(e.target.value)}
-                                        style={{ width: '100%', padding: '15px', borderRadius: '10px', border:'none' }}
-                                        required
-                                    />                                        </div>
+                                            type="date"
+                                            className="input-field"
+                                            value={dateTo}
+                                            onChange={(e) => setDateTo(e.target.value)}
+                                            style={{ width: '100%', padding: '15px', borderRadius: '10px' }}
+                                        />
                                     </div>
 
-                                    {/* Download Format */}
-                                    <div className="col-lg-6 col-md-6 mb-4">
-                                        <div className="form-group">
+                                    <div className="col-lg-6 mb-4">
                                         <label>Format</label>
-                                    <select className="input-field" value={format} onChange={(e) => setFormat(e.target.value)} style={{ width: '100%', padding: '15px', borderRadius: '10px' }}>
-                                        <option value="csv">CSV</option>
-                                        <option value="pdf">PDF</option>
-                                    </select>
-                                        </div>
+                                        <select
+                                            className="input-field"
+                                            value={format}
+                                            onChange={(e) => setFormat(e.target.value)}
+                                            style={{ width: '100%', padding: '15px', borderRadius: '10px' }}
+                                        >
+                                            <option value="csv">CSV</option>
+                                            <option value="pdf">PDF</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="col-lg-12 mb-4">
+                                        <button type="submit" className="btn" style={{ backgroundColor: '#236a80', color: 'white' }}>
+                                            Download
+                                        </button>
                                     </div>
                                 </div>
-                                <button type="submit" className="btn" style={{ backgroundColor: '#236a80', color: 'white' }}>Download</button>
                             </form>
                             <ToastContainer />
                         </div>
@@ -182,6 +194,6 @@ const Download = () => {
             <FooterM />
         </div>
     );
-}
+};
 
 export default Download;

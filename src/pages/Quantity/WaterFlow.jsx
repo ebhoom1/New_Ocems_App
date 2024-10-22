@@ -21,7 +21,7 @@ const extractUniqueDates = (data) => {
   }));
 };
 
-const Energy = ({ searchTerm, userData, userType }) => {
+const WaterFlow = ({ searchTerm, userData, userType }) => {
   const dispatch = useDispatch();
   const selectedUserIdFromRedux = useSelector((state) => state.selectedUser.userId);
   const { differenceData, error } = useSelector((state) => state.iotData);
@@ -37,7 +37,7 @@ const Energy = ({ searchTerm, userData, userType }) => {
     try {
       const result = await dispatch(fetchDifferenceDataByUserName(userName)).unwrap();
       console.log("Fetched Data:", result); // Debugging
-      setSearchResult(userName); // Store the user ID from search result
+      setSearchResult(userName); // Set the searched user ID
     } catch {
       toast.error("Difference data is not found");
       setSearchResult(null);
@@ -103,56 +103,59 @@ const Energy = ({ searchTerm, userData, userType }) => {
 
   return (
     <div>
-      <h4 className="text-center mt-5">
-        User ID: <span style={{ color: "#236a80" }}>{searchResult || currentUserName}</span>
-      </h4>
-
-      <div className="card">
-        <div className="card-body">
-          <h2>Energy Flow</h2>
-
-          {error && <p className="text-danger">{error}</p>}
-          <div className="table-responsive mt-3">
-            <table className="table table-bordered">
-              <thead>
-                <tr>
-                  <th>SI.No</th>
-                  <th>Parameter</th>
-                  <th>Acceptable <br /> Limits</th>
-                  {filteredDates.map((date, index) => (
-                    <th key={index}>{date.formatted}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td rowSpan={3}>1</td>
-                  <td rowSpan={3}>FL-Inlet raw sewage, KLD</td>
-                  <td>Initial Flow</td>
-                  {filteredDates.map((date, index) => (
-                    <td key={index}>{safeRender(getDataForDate(date).initialEnergy)}</td>
-                  ))}
-                </tr>
-                <tr>
-                  <td>Final Flow</td>
-                  {filteredDates.map((date, index) => (
-                    <td key={index}>{safeRender(getDataForDate(date).finalEnergy)}</td>
-                  ))}
-                </tr>
-                <tr>
-                  <td>Energy Difference</td>
-                  {filteredDates.map((date, index) => (
-                    <td key={index}>{safeRender(getDataForDate(date).energyDifference)}</td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <ToastContainer />
+          <h4 className="text-center mt-5">User ID: <span style={{color:'#236a80'}}>{searchResult || currentUserName}</span></h4>
+    <div className="card mt-3">
+      <div className="card-body">
+        {/* Displaying the selected user ID dynamically */}
+        <h2 className="">Water Flow</h2>
+        {error && <p className="text-danger">{error}</p>}
+        <div className="table-responsive mt-3">
+          <table className="table table-bordered">
+            <thead>
+              <tr>
+                <th>SI.No</th>
+                <th>Parameter</th>
+                <th>Acceptable <br /> Limits</th>
+                {filteredDates.map((date, index) => (
+                  <th key={index}>{date.formatted}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowSpan={3}>1</td>
+                <td rowSpan={3}>FL-Inlet raw sewage, KLD</td>
+                <td>Initial Flow</td>
+                {filteredDates.map((date, index) => (
+                  <td key={index}>
+                    {safeRender(getDataForDate(date).initialEnergy)}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td>Final Flow</td>
+                {filteredDates.map((date, index) => (
+                  <td key={index}>
+                    {safeRender(getDataForDate(date).finalEnergy)}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td>Flow Difference</td>
+                {filteredDates.map((date, index) => (
+                  <td key={index}>
+                    {safeRender(getDataForDate(date).energyDifference)}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
         </div>
+        <ToastContainer />
       </div>
+    </div>
     </div>
   );
 };
 
-export default Energy;
+export default WaterFlow;

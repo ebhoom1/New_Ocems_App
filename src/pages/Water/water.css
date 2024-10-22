@@ -1,7 +1,17 @@
+
 .card {
+ 
   background: linear-gradient(-90deg, #ffffff, #51b8d7);
   border: none;
-    color: white;
+  color: white;
+  border-radius: 10px; /* Add rounded corners for better design */
+  overflow: hidden; /* Prevent content from escaping the card boundary */
+  position: relative; /* Ensure child elements are positioned relative to the card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;  /* Optional: Add shadow for a modern look */
+}
+.cardwater:hover{
+  transform: scale(1.05);
 }
 @media (max-width: 768px) {
     .card {
@@ -50,12 +60,12 @@
 }
 
 .custom-img {
-    position: absolute;
-    bottom: 40px; /* Adjust this to move the image slightly out of the card */
-    right: -20px;  /* Adjust this to move the image slightly out to the right */
-    width: 40%;   /* Adjust the width as needed */
-    transform: rotate(-10deg); /* Optional: rotate the image to match the style */
-    z-index: 20;  /* Ensure the image is above other elements */
+  position: absolute;
+  bottom: 45px; /* Adjust to place the image properly within the card */
+  right: 5px;  /* Align image towards the bottom right inside the card */
+  width: 30%;   /* Adjust the size to fit nicely within the card */
+  transform: rotate(-10deg); /* Optional rotation for style */
+  z-index: 1;  /* Ensure it does not overlap other elements */
 }
 .prev{
   background: linear-gradient(180deg, #a1d6e7 ,white);
@@ -97,7 +107,7 @@
 
 .maindashboard {
   position: sticky;
-  top: 64px; /* replace 60px with the actual height of your header */
+  top: 67px; /* replace 60px with the actual height of your header */
   width: 100%;
   z-index: 5; 
   background-color: white;/* below the header but above the regular content */

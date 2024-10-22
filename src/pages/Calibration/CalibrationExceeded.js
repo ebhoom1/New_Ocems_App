@@ -94,6 +94,7 @@ const CalibrationExceeded = () => {
                     <tr>
                       <th>SI.No</th>
                       <th>User ID</th>
+                      <th>Station Name</th>
                       <th>Exceeded Parameter</th>
                       <th>Value</th>
                       <th>Date</th>
@@ -108,6 +109,7 @@ const CalibrationExceeded = () => {
                       <tr key={entry._id}>
                         <td>{index + 1}</td>
                         <td>{entry.userName}</td>
+                        <td>{entry.stackName}</td>
                         <td>{entry.parameter}</td>
                         <td>{entry.value}</td>
                         <td>{entry.formattedDate}</td>

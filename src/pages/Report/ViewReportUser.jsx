@@ -64,7 +64,7 @@ const ViewReportUser = () => {
           {/* Report Details Section */}
           <div className="row">
             <div className="col-12 col-md-12 grid-margin">
-              <div className="card m-1">
+              <div className="card m-1 mt-5">
                 <div className="card-body">
                   <h1 className='text-center mt-3'>Report Details for {userName}</h1>
                   <div className="m-3 p-3">

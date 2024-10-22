@@ -4,11 +4,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from '../../redux/features/user/userSlice';
 import DashboardSam from '../Dashboard/DashboardSam';
 import Hedaer from '../Header/Hedaer';
-import WaterFlow from './WaterFlow';
-import TotalSewageGraph from './TotalSewageGraph';
+import Energy from './Energy';
+import TreatmentAnalysis from './TreatmentAnalysis';
 import Maindashboard from '../Maindashboard/Maindashboard';
 
-const Quantity = () => {
+const EnergyLayout = () => {
   
   return (
     <div className="container-fluid">
@@ -27,12 +27,12 @@ const Quantity = () => {
               <Maindashboard />
             </div>
           </div>
-         <WaterFlow/>
-         <TotalSewageGraph/>
+         <Energy/>
+         <TreatmentAnalysis/>
         </div>
       </div>
     </div>
   );
 };
 
-export default Quantity;
+export default EnergyLayout;

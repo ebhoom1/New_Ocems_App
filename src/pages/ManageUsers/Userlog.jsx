@@ -5,15 +5,16 @@ import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 import KeralaMap from './KeralaMap';
 import DashboardSam from "../Dashboard/DashboardSam";
 import Hedaer from "../Header/Hedaer";
-import { fetchUsers, addUser ,deleteUser  } from "../../redux/features/userLog/userLogSlice"; // Add action for fetching and adding users
+import { fetchUsers, addUser ,deleteUser ,addStackName, fetchUserByCompanyName,clearState  } from "../../redux/features/userLog/userLogSlice"; // Add action for fetching and adding users
 import { useDispatch, useSelector } from "react-redux";
 
 const UsersLog = () => {
   const dispatch = useDispatch();
-  const { users = [], loading, error } = useSelector((state) => state.userLog); // Fetch from Redux store
+  const {users, selectedUser, loading, error  } = useSelector((state) => state.userLog); // Fetch from Redux store
   const navigate = useNavigate();
 
-
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [stacks, setStacks] = useState([{ stackName: '', stationType: '' }]);
   const [formData, setformData] = useState({
     userName: "",
     companyName: "",
@@ -233,6 +234,113 @@ const handleSubmitDelete =async(e)=>{
     })
   }
 }
+
+
+/* stack */
+const handleInputNameChange = (index, field, value) => {
+  const newStacks = [...stacks];
+  newStacks[index][field] = value;
+  setStacks(newStacks);
+};
+
+const handleAddInput = () => {
+  setStacks([...stacks, { stackName: '', stationType: '' }]);
+};
+
+const handleRemoveInput = (index) => {
+  const newStacks = stacks.filter((_, idx) => idx !== index);
+  setStacks(newStacks);
+};
+
+const handleCompanyChange = async (event) => {
+  const companyName = event.target.value;
+  setSelectedCompany(companyName);
+
+  if (companyName) {
+    try {
+      const result = await dispatch(fetchUserByCompanyName(companyName)).unwrap();
+      console.log('Fetched User:', result);
+
+      if (result.stackName && Array.isArray(result.stackName)) {
+        const formattedStacks = result.stackName.map((stack) => ({
+          stackName: stack.name || '',
+          stationType: stack.stationType || '',
+        }));
+        setStacks(formattedStacks);
+      } else {
+        setStacks([{ stackName: '', stationType: '' }]);
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      toast.error('Failed to fetch user data.');
+      setStacks([{ stackName: '', stationType: '' }]);
+    }
+  }
+};
+
+const handleSave = async () => {
+  if (!selectedCompany) {
+    toast.error('Please select a company', { position: 'top-center' });
+    return;
+  }
+
+  if (!Array.isArray(stacks)) {
+    console.error('Stacks is not an array:', stacks);
+    toast.error('Invalid stacks data', { position: 'top-center' });
+    return;
+  }
+
+  const stackData = stacks.map((stack) => ({
+    name: stack.stackName,
+    stationType: stack.stationType,
+  }));
+
+  console.log('Stack Data:', stackData);
+
+  if (!Array.isArray(stackData) || !stackData.every(item => typeof item === 'object' && item.name && item.stationType)) {
+    console.error('Invalid stackData:', stackData);
+    toast.error('Stack data must be an array of objects with name and stationType', { position: 'top-center' });
+    return;
+  }
+
+  try {
+    console.log('Payload:', { companyName: selectedCompany, stackData });
+
+    await dispatch(
+      addStackName({
+        companyName: selectedCompany,
+        stackData,
+      })
+    ).unwrap();
+
+    toast.success('Stack Names and Station Types added successfully', {
+      position: 'top-center',
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  } catch (error) {
+    console.error('Error adding stack names:', error);
+    toast.error('An error occurred. Please try again.', { position: 'top-center' });
+  }
+};
+
+
+const handleCancel = () => {
+  navigate('/manage-user');
+};
+
+if (loading) {
+  return <div>Loading...</div>;
+}
+
+if (error) {
+  return <div>Error: {error}</div>;
+}
+
+
   return (
     <div className="container-fluid">
       <div className="row">
@@ -522,14 +630,116 @@ const handleSubmitDelete =async(e)=>{
             </div>
            
         </div>
-        <div className="row" style={{overflowX:'hidden'}}>
-          <div className="col-12 col-md-12 grid-margin">
-          <div className="col-12 d-flex justify-content-between align-items-center m-3">
-      <h1 className='text-center mt-5'>Add Stack</h1>
+
+        {/* add stack */}
+        <div className="row" style={{ overflowX: 'hidden' }}>
+  <div className="col-12 col-md-12 grid-margin">
+    <div className="col-12 d-flex justify-content-between align-items-center m-3">
+      <h1 className="text-center mt-5">Add Stack Names and Station Types</h1>
     </div>
+    {/* main */}
+    <div className="row" style={{ overflowX: 'hidden' }}>
+  <div className="col-12 col-md-12 grid-margin">
+    <div className="col-12 d-flex justify-content-between align-items-center m-3">
+      <h1 className="text-center mt-5">Add Stack Names and Station Types</h1>
+    </div>
+    <div className="card">
+      <div className="card-body">
+        <form className="m-2 p-5">
+          {/* Select Company */}
+          <div className="row">
+            <div className="col-lg-12 col-md-6 mb-4">
+              <div className="form-group">
+                <label htmlFor="company" className="form-label">Select Company</label>
+                <select
+                  id="company"
+                  className="form-control"
+                  value={selectedCompany}
+                  onChange={handleCompanyChange}
+                  style={{ width: '100%', padding: '15px', borderRadius: '10px' }}
+                >
+                  <option value="">Select Company</option>
+                  {users.map((user) => (
+                    <option key={user._id} value={user.companyName}>
+                      {user.companyName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
-        </div>
+          {/* Stack Name Inputs */}
+          {stacks.map((stack, index) => (
+            <div key={index} className="row mb-3 align-items-center">
+              <div className="col-lg-5 col-md-5">
+                <div className="form-group">
+                <input
+                  type="text"
+                  value={stack.stackName}
+                  onChange={(e) => handleInputNameChange(index, 'stackName', e.target.value)}
+                  className="input-field mr-2 w-100"
+                  placeholder="Enter Stack Name"
+                  style={{ padding: '15px', borderRadius: '10px' }}
+                />
+                </div>
+              </div>
+
+              <div className="col-lg-5 col-md-5">
+                <div className="form-group">
+                  <input
+                    type="text"
+                    value={stack.stationType}
+                    onChange={(e) => handleInputNameChange(index, 'stationType', e.target.value)}
+                    className="form-control"
+                    placeholder="Enter Station Type"
+                    style={{ padding: '15px', borderRadius: '10px' }}
+                  />
+                </div>
+              </div>
+
+              {index > 0 && (
+                <div className="col-lg-2 col-md-2 text-center">
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveInput(index)}
+                    className="btn btn-danger"
+                    style={{ padding: '10px 20px' }}
+                  >
+                    -
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={handleAddInput}
+            className="btn btn-secondary mb-3"
+            style={{ color: 'white' }}
+          >
+            + Add Another Stack Name and Station Type
+          </button>
+
+          {/* Save and Cancel Buttons */}
+          <div className="mt-4">
+            <button onClick={handleSave} className="btn btn-success mb-2" style={{ color: 'white' }}>
+              Save Stack Names
+            </button>
+            <button onClick={handleCancel} className="btn btn-danger mb-2 ms-2" style={{ color: 'white' }}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div>
+</div>
+
 
         {/* delete user */}
         <div className="row" style={{overflowX:'hidden'}}>

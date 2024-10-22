@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchIotDataByUserName } from "../../redux/features/iotData/iotDataSlice";
+import { fetchIotDataByUserName  ,fetchLatestIotData } from "../../redux/features/iotData/iotDataSlice";
 import AirGraphPopup from "./AirGraphPopup";
 import CalibrationPopup from "../Calibration/CalibrationPopup";
 import CalibrationExceeded from '../Calibration/CalibrationExceeded';
 import { Oval } from 'react-loader-spinner';
 import DashboardSam from '../Dashboard/DashboardSam';
 import Maindashboard from "../Maindashboard/Maindashboard";
-import DailyHistoryModal from "../Water/DailyHIstoryModal";
 import Hedaer from "../Header/Hedaer";
+import { API_URL } from "../../utils/apiConfig";
+import DailyHistoryModal from "../Water/DailyHIstoryModal";
+
 
 const Airambient = () => {
   const dispatch = useDispatch();
@@ -18,12 +20,29 @@ const Airambient = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
-  const [searchResult, setSearchResult] = useState(null);
   const [searchError, setSearchError] = useState("");
   const [currentUserName, setCurrentUserName] = useState(userType === 'admin' ? "KSPCB001" : userData?.validUserOne?.userName);
   const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedStack, setSelectedStack] = useState("all");
+  const [searchResult, setSearchResult] = useState({ stackData: [] });
+  const [emissionStacks, setEmissionStacks] = useState([]); // Store only emission-related stacks
+  
+  
+  // Fetch stack names and filter by emission-related station types
+  const fetchEmissionStacks = async (userName) => {
+    try {
+      const response = await fetch(`${API_URL}/api/get-stacknames-by-userName/${userName}`);
+      const data = await response.json(); // Parse response data
+      const filteredStacks = data.stackNames
+        .filter(stack => stack.stationType === 'emission')
+        .map(stack => stack.name); // Extract only the stack names
+      setEmissionStacks(filteredStacks);
+    } catch (error) {
+      console.error("Error fetching emission stacks:", error);
+    }
+  };
 
   const fetchData = async (userName) => {
     setLoading(true);
@@ -41,6 +60,7 @@ const Airambient = () => {
     }
   };
 
+
   const fetchHistoryData = async (fromDate, toDate) => {
     // Logic to fetch history data based on the date range
     console.log('Fetching data from:', fromDate, 'to:', toDate);
@@ -55,12 +75,16 @@ const Airambient = () => {
     const storedUserId = sessionStorage.getItem('selectedUserId');
     const userName = selectedUserIdFromRedux || storedUserId || currentUserName;
     fetchData(userName);
-
+    fetchEmissionStacks(userName); // Fetch emission stacks
     if (storedUserId) {
       setCurrentUserName(storedUserId);
     }
   }, [selectedUserIdFromRedux, currentUserName, dispatch]);
 
+  // Handle stack change
+  const handleStackChange = (event) => {
+    setSelectedStack(event.target.value);
+  };
   const handleCardClick = (card) => {
     setSelectedCard(card);
     setShowPopup(true);
@@ -94,34 +118,34 @@ const Airambient = () => {
       setCurrentUserName(newUserId);
     }
   };
+/* stack */
 
-  const airParameters = [
-    { parameter: "Flow", value: 'm/s', name: "Flow" },
-    { parameter: "CO", value: 'µg/Nm³', name: "CO" },
-    { parameter: "NOX", value: 'µg/Nm³', name: "NOX" },
-    { parameter: "Pressure", value: 'Pa', name: "Pressure" },
-    { parameter: "PM", value: 'µg/m³', name: "PM" },
-    { parameter: "SO2", value: 'µg/m³', name: "SO2" },
-    { parameter: "NO2", value: 'µg/m³', name: "NO2" },
-    { parameter: "Mercury", value: 'µg/m³', name: "Mercury" },
-    { parameter: "PM 10", value: 'µg/m³', name: "PM10" },
-    { parameter: "PM 2.5", value: 'µg/m³', name: "PM25" },
-    { parameter: "NOH", value: 'µg/m³', name: "NOH" },
-    { parameter: "NH3", value: 'µg/m³', name: "NH3" },
-    { parameter: "Windspeed", value: 'm/s', name: "Windspeed" },
-    { parameter: "Wind Dir", value: 'deg', name: "WindDir" },
-    { parameter: "Temperature", value: '℃', name: "AirTemperature" },
-    { parameter: "Humidity", value: '%', name: "Humidity" },
-    { parameter: "Solar Radiation", value: 'w/m²', name: "solarRadiation" },
-    {parameter:"Flouride",value:'µg/m',name:"Flouride"},
-    {parameter:"Flouride (II)",value:'µg/m',name:"stack_2_Flouride"},
-    { parameter: "PM (II)", value: 'µg/m³', name: "stack_2_PM" },
-    { parameter: "NH3 (II)", value: 'µg/m³', name: "stack_2_NH3" },
-    {parameter:"Flouride (III)",value:'µg/m',name:"STACK_32_Ammonia_Flouride"},
-    { parameter: "PM (III)", value: 'µg/m³', name: "STACK_32_Ammonia_PM" },
-    { parameter: "NH3 (III)", value: 'µg/m³', name: "STACK_32_Ammonia_NH3" },
-    
-  ];
+const airParameters = [
+  { parameter: "Flow", value: 'm3/hr', name: "Flow" },
+  { parameter: "CO", value: 'µg/Nm³', name: "CO" },
+  { parameter: "NOX", value: 'µg/Nm³', name: "NOX" },
+  { parameter: "Pressure", value: 'Pa', name: "Pressure" },
+  { parameter: "PM", value: 'µg/m³', name: "PM" },
+  { parameter: "SO2", value: 'mg/Nm3', name: "SO2" },
+  { parameter: "NO2", value: 'µg/m³', name: "NO2" },
+  { parameter: "Mercury", value: 'µg/m³', name: "Mercury" },
+  { parameter: "PM 10", value: 'µg/m³', name: "PM10" },
+  { parameter: "PM 2.5", value: 'µg/m³', name: "PM25" },
+  { parameter: "Windspeed", value: 'm/s', name: "WindSpeed" },
+  { parameter: "Wind Dir", value: 'deg', name: "WindDir" },
+  { parameter: "Temperature", value: '℃', name: "AirTemperature" },
+  { parameter: "Humidity", value: '%', name: "Humidity" },
+  { parameter: "Solar Radiation", value: 'w/m²', name: "solarRadiation" },
+  { parameter: "Fluoride", value: "mg/Nm3", name: "Fluoride" },
+  {parameter: "NH3", value: "mg/Nm3", name: "NH3"},
+  { parameter: "pH", value: 'pH', name: 'ph' },
+  { parameter: "Ammonical Nitrogen", value: 'mg/l', name: 'ammonicalNitrogen' },
+  {parameter:"Totalizer_Flow", value:'m3/Day', name:'Totalizer_Flow'},
+
+
+
+];
+
 
   return (
     <div className="container-fluid">
@@ -166,13 +190,15 @@ const Airambient = () => {
 </div>
 
                 <div className="d-flex justify-content-between">
-                  <ul className="quick-links ml-auto">
-                    {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
-                      <h5>Data Interval: <span className="span-class">{userData.validUserOne.dataInteval}</span></h5>
-                    )}
+                <ul className="quick-links ml-auto mt-2">
+                    <button className="btn mb-2 mt-2" style={{ backgroundColor: '#236a80', color: 'white' }} onClick={() => setShowHistoryModal(true)}>
+                      Daily History
+                    </button>
                   </ul>
+                  
+                 
                   <ul className="quick-links ml-auto">
-                    <h5 className='d-flex justify-content-end'>
+                    <h5 className='d-flex justify-content-end mt-2'>
                       <b>Analyser Health:</b><span className={searchResult?.validationStatus ? 'text-success' : 'text-danger'}>
                         {searchResult?.validationStatus ? 'Good' : 'Problem'}
                       </span>
@@ -186,12 +212,40 @@ const Airambient = () => {
                     </ul>
                   )}
                   <ul className="quick-links ml-auto">
-                    <button className="btn mb-2 mt-2" style={{ backgroundColor: '#236a80', color: 'white' }} onClick={() => setShowHistoryModal(true)}>
-                      Daily History
-                    </button>
+                    {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
+                      <h5>Data Interval: <span className="span-class">{userData.validUserOne.dataInteval}</span></h5>
+                    )}
                   </ul>
-                </div>
 
+
+                </div>
+                <div className="row align-items-center">
+        <div className="col-md-4">
+    {/* Dropdown for Stack Names */}
+    {searchResult?.stackData && searchResult.stackData.length > 0 && (
+      <div className="stack-dropdown">
+        <label htmlFor="stackSelect" className="label-select">Select Station:</label>
+        <div className="styled-select-wrapper">
+          <select
+            id="stackSelect"
+            className="form-select styled-select"
+            value={selectedStack}
+            onChange={handleStackChange}
+          >
+            <option value="all">All Stacks</option> {/* Default option to show all stacks */}
+            {searchResult.stackData
+                    .filter(stack => emissionStacks.includes(stack.stackName))
+                    .map((stack, index) => (
+                      <option key={index} value={stack.stackName}>
+                        {stack.stackName}
+                      </option>
+                    ))}
+          </select>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
                 {loading && (
                   <div className="spinner-container">
                     <Oval
@@ -213,88 +267,59 @@ const Airambient = () => {
                     </div>
                   </div>
                 )}
-
-                <div className="row">
+{/*   {!loading && (!searchResult || !searchResult.stackData || searchResult.stackData.length === 0) && (
+          <div className="col-12">
+            <h5 className="text-center">No Data Available</h5>
+          </div>
+        )}
+            */}     <div className="row">
                   <div className="col-12 col-md-12 grid-margin">
                     <div className="col-lg-9 col-12 airambient-section w-100">
                       <div className="content-wrapper shadow p-5">
                         <h3 className="text-center">{companyName}</h3>
                         <div className="row">
-                          {!loading && airParameters.map((item, index) => (
-                            <div className="col-12 mb-2 col-md-4 grid-margin" key={index}>
-                              <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
-                                <div className="card-body">
-                                  <h3 className="mb-4">{item.parameter}</h3>
-                                  <h6>
-                                    <strong className="strong-value" style={{ color: '#ffffff' }}>
-                                      {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
-                                    </strong>
-                                    <span>{item.value}</span>
-                                  </h6>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
+  {searchResult?.stackData && searchResult.stackData.length > 0 ? (
+    searchResult.stackData
+      .filter(stack => emissionStacks.includes(stack.stackName)) // Filter for emission-related stacks
+      .map((stack, stackIndex) => (
+        (selectedStack === "all" || selectedStack === stack.stackName) && (
+          <div key={stackIndex} className="col-12 mb-4">
+            <div className="stack-box">
+              <h2 className="text-center" style={{ color: '#236a80' }}>
+                <b>{stack.stackName}</b>
+              </h2>
+              <div className="row">
+                {airParameters.map((item, index) => {
+                  const value = stack[item.name];
+                  return value && value !== 'N/A' ? (
+                    <div className="col-12 col-md-4 grid-margin" key={index}>
+                      <div className="card mb-3" onClick={() => handleCardClick({ title: item.parameter })}>
+                        <div className="card-body">
+                          <h3 className="mb-3">{item.parameter}</h3>
+                          <h6>
+                            <strong style={{ color: '#ffffff' }}>{value}</strong>
+                            <span>{item.value}</span>
+                          </h6>
                         </div>
-
-                        <div className="row">
-  {/* Heading for Stack II */}
-  <div className="col-12">
-    <h3 className="text-center mt-4">Stack II</h3>
-  </div>
-
-  {/* Stack II Parameters */}
-  {!loading && airParameters.filter(param => param.name.includes("stack_2")).map((item, index) => (
-    <div className="col-12 mb-2 col-md-4 grid-margin" key={index}>
-      <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
-        <div className="card-body">
-          <div className="row">
-            <div className="col-12">
-              <h3 className="mb-3">{item.parameter}</h3>
-            </div>
-            <div className="col-12 mb-3">
-              <h6>
-                <strong className="strong-value" style={{color:'#ffffff'}}>
-                  {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
-                </strong> 
-                <span>{item.value}</span>
-              </h6>
+                      </div>
+                    </div>
+                  ) : null;
+                })}
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        )
+      ))
+  ) : (
+    <div className="col-12">
+      <h5 className="text-center">No Data Available</h5>
     </div>
-  ))}
+  )}
 </div>
-<div className="row">
-  {/* Heading for Stack II */}
-  <div className="col-12">
-    <h3 className="text-center mt-4">STACK_32_Ammonia</h3>
-  </div>
 
-  {/* Stack II Parameters */}
-  {!loading && airParameters.filter(param => param.name.includes("STACK_32_Ammonia")).map((item, index) => (
-    <div className="col-12 mb-2 col-md-4 grid-margin" key={index}>
-      <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
-        <div className="card-body">
-          <div className="row">
-            <div className="col-12">
-              <h3 className="mb-3">{item.parameter}</h3>
-            </div>
-            <div className="col-12 mb-3">
-              <h6>
-                <strong className="strong-value" style={{color:'#ffffff'}}>
-                  {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
-                </strong> 
-                <span>{item.value}</span>
-              </h6>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
+
+                      
+
 
                         {showPopup && selectedCard && (
                           <AirGraphPopup

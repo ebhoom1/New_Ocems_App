@@ -76,14 +76,14 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName }) => {
         if (!Array.isArray(data) || data.length === 0) {
             return { labels: [], values: [] };
         }
-
+    
         let labels;
         switch (interval) {
             case 'hour':
                 labels = data.map(entry => moment(entry.timestamp).format('HH:mm'));
                 break;
             case 'day':
-                labels = data.map(entry => moment(entry.timestamp).format('HH:mm'));
+                labels = data.map(entry => moment(entry.timestamp).format('DD/MM'));
                 break;
             case 'week':
                 labels = data.map(entry => moment(entry.timestamp).format('ddd'));
@@ -91,21 +91,27 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName }) => {
             case 'month':
                 labels = data.map(entry => moment(entry.timestamp).format('MMM'));
                 break;
-            case 'sixmonths':
-                labels = data.map(entry => moment(entry.timestamp).format('MMM YYYY'));
-                break;
             case 'year':
-                labels = data.map(entry => moment(entry.timestamp).format('MMM YYYY'));
+                labels = data.map(entry => moment(entry.timestamp).format('YYYY'));
                 break;
             default:
                 labels = data.map(entry => entry.interval);
         }
-
+    
         const values = data.map(entry => entry[parameter]);
-
         return { labels, values };
     };
-
+    useEffect(() => {
+        if (userName && parameter) {
+            setLoadingByInterval(true);
+            dispatch(fetchAverageDataByUserName({ userName, interval: timeInterval }))
+                .unwrap()
+                .then(data => setDataByInterval(data))
+                .catch(error => setErrorByInterval(error.message))
+                .finally(() => setLoadingByInterval(false));
+        }
+    }, [userName, parameter, timeInterval]);
+    
     const { labels, values } = processData(dataByInterval[timeInterval], timeInterval);
 
     const chartData = {

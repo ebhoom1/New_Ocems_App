@@ -11,6 +11,7 @@ import Modal from "react-modal";
 import "react-toastify/dist/ReactToastify.css";
 import { loginUser } from "../../redux/features/auth/authSlice";
 import './loginnew.css'
+import { API_URL } from "../../utils/apiConfig";
 
 function LoginNew() {
   const { userId } = useSelector((state) => state.selectedUser); 
@@ -25,7 +26,9 @@ function LoginNew() {
   const [currentUserName, setCurrentUserName] = useState("KSPCB001");
   const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(false); // Use consistent loading state
+  const [selectedStack, setSelectedStack] = useState("all");
 
+  const [effluentStacks, setEffluentStacks] = useState([]); // New state to store effluent stacks
   const [passShow, setPassShow] = useState(false);
   const [inpval, setInpval] = useState({
     email: "",
@@ -56,9 +59,10 @@ function LoginNew() {
     { parameter: "Temp", value: '℃', name: "AirTemperature" },
     { parameter: "Humidity", value: '%', name: "Humidity" },
   ]);
-
+  
+  
   const fetchData = async (userName) => {
-    setLoading(true); // Set loading true when fetching
+    setLoading(true);
     try {
       const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
       setSearchResult(result);
@@ -69,7 +73,7 @@ function LoginNew() {
       setCompanyName("Unknown Company");
       setSearchError(err.message || 'No Result found for this userID');
     } finally {
-      setLoading(false); // Set loading false after fetching
+      setLoading(false);
     }
   };
 
@@ -80,7 +84,6 @@ function LoginNew() {
       fetchData(currentUserName);
     }
   }, [userId, currentUserName, dispatch]);
-  
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -123,7 +126,7 @@ function LoginNew() {
         const value = result ? result[item.name] : 'N/A';
         return (
           <div className="col-md-4 col-12 grid-margin" key={index}>
-            <div className="card m-3" onClick={() => handleCardClick(item)}>
+            <div className="card m-3">
               <div className="card-body">
                 <h5>{item.parameter}</h5>
                 <h6>
@@ -135,6 +138,7 @@ function LoginNew() {
         );
       });
   };
+
   
 
   Modal.setAppElement('#root');
@@ -205,38 +209,15 @@ function LoginNew() {
   const handleDownloadClick = () => {
     navigate('/download-data');  // Redirect to the download-data page
   };
-
+  const handleStackChange = (event) => {
+    setSelectedStack(event.target.value);
+  };
   return (
     <div className="back d-flex-align-items-center justify-content center" style={{ overflowY: 'hidden', marginTop: '6%' }}>
       <div className="row ms-5 me-5 shadow m-5 d-flex align-items-center justify-content-center columnFirst" style={{ backgroundColor: 'white', marginTop: '6%', overflowY: 'hidden' }}>
         {/* Column 1 (Water parameters and company data) */}
         <div className="col-6 firstColumn p-5">
-          <div className="col-lg-12 col-12">
-            {loading && (
-              <div className="spinner-container">
-                <Oval
-                  height={40}
-                  width={40}
-                  color="#236A80"
-                  ariaLabel="Fetching details"
-                  secondaryColor="#e0e0e0"
-                  strokeWidth={2}
-                  strokeWidthSecondary={2}
-                />
-              </div>
-            )}
-
-            {!loading && searchError && (
-              <div className="card mb-4">
-                <div className="card-body">
-                  <h1>{searchError}</h1>
-                </div>
-              </div>
-            )}
-
-            {!loading && !searchError && (
-              <>
-                <div className="d-flex justify-content-between align-items-center">
+        <div className="d-flex justify-content-between align-items-center">
                   <button onClick={handlePrevUser} disabled={loading || currentUserName === "KSPCB001"} className='btn btn-outline-dark'>
                     <i className="fa-solid fa-arrow-left me-1"></i> Prev
                   </button>
@@ -244,14 +225,55 @@ function LoginNew() {
                     Next <i className="fa-solid fa-arrow-right"></i>
                   </button>
                 </div>
-                <h4 className="text-center mt-2">{companyName}</h4>
-                <div className="row mt-4 " >
-                  {renderBoxesWithValues(waterParams, searchResult)}
-                  {renderBoxesWithValues(airParams, searchResult)}
+          <h4 className="text-center">{companyName}</h4>
+          {loading && (
+            <div className="spinner-container">
+              <Oval height={40} width={40} color="#236A80" ariaLabel="Fetching details" secondaryColor="#e0e0e0" strokeWidth={2} strokeWidthSecondary={2} />
+            </div>
+          )}
+          {!loading && searchError && (
+            <div className="card mb-4">
+              <div className="card-body">
+                <h1>{searchError}</h1>
+              </div>
+            </div>
+          )}
+          {!loading && !searchError && (
+            <>
+              {searchResult?.stackData && searchResult.stackData.length > 0 && (
+                <div className="stack-dropdown">
+                  <label htmlFor="stackSelect" className="label-select">Select Stack:</label>
+                  <select
+                    id="stackSelect"
+                    className="form-select styled-select"
+                    value={selectedStack}
+                    onChange={handleStackChange}
+                  >
+                    <option value="all">All Stacks</option>
+                    {searchResult.stackData.map((stack, index) => (
+                      <option key={index} value={stack.stackName}>
+                        {stack.stackName}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </>
-            )}
-          </div>
+              )}
+
+              <div className="row mt-4">
+                {selectedStack === "all" ? (
+                  <>
+                    {renderBoxesWithValues(waterParams, searchResult)}
+                    {renderBoxesWithValues(airParams, searchResult)}
+                  </>
+                ) : (
+                  <>
+                    {renderBoxesWithValues(waterParams, searchResult[selectedStack])}
+                    {renderBoxesWithValues(airParams, searchResult[selectedStack])}
+                  </>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Column 2 (Login Form) */}

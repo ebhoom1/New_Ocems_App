@@ -23,6 +23,8 @@ const ViewReport = () => {
   const [filteredReports, setFilteredReports] = useState([]);
   const [userType, setUserType] = useState('');
   const [noReportMessage, setNoReportMessage] = useState(''); 
+  const [dataLoaded, setDataLoaded] = useState(false);
+
   const navigate = useNavigate();
 
   // Fetch all reports and user type on component mount
@@ -41,8 +43,10 @@ const ViewReport = () => {
         if (userData.status === 401 || !userData.validUserOne) {
           navigate('/');
         } else {
+          console.log('user verified');
+          
           setUserType(userData.validUserOne.userType);
-  
+          setDataLoaded(true);
           const storedUserId = sessionStorage.getItem('selectedUserId') || null;
   
           // Fetch all reports for admin or individual user reports based on userType
@@ -167,6 +171,7 @@ const ViewReport = () => {
                             <th>To Date</th>
                             <th>Username</th>
                             <th className="custom-width">Company Name</th>
+                            <th className="custom-width">Station Name</th>
                             <th className="custom-width">Industry Type</th>
                             <th className="custom-width">Engineer Name</th>
                             <th>Verified/Declined</th>
@@ -185,6 +190,7 @@ const ViewReport = () => {
                                 <td className="custom-width">{report.toDate}</td>
                                 <td className="custom-width">{report.userName}</td>
                                 <td className="custom-width">{report.companyName}</td>
+                                <td className="custom-width">{report.stackName}</td>
                                 <td className="custom-width">{report.industryType}</td>
                                 <td className="custom-width">{report.engineerName}</td>
                                 <td className={report.reportApproved ? 'text-success' : 'text-danger'}>

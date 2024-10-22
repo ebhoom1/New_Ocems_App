@@ -14,6 +14,13 @@ const Calibration = () => {
   const { calibrationData, loading, error } = useSelector((state) => state.calibration);
   const { userData } = useSelector((state) => state.user);
 
+  const validateUser = async () => {
+    const response = await dispatch(fetchUser()).unwrap(); 
+};
+
+if (!userData) {
+  validateUser();
+}
   // Fetch user data
   useEffect(() => {
     if (!userData) {
@@ -34,41 +41,37 @@ const Calibration = () => {
     navigate('/view-calibration');
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit =async(event)=>{
+    try {
+      event.preventDefault();
 
-    // Validation
-    if (!calibrationData.date) {
-      toast.warning('Please add the date', { position: 'top-center' });
-    } else if (!calibrationData.equipmentName) {
-      toast.warning('Please add the equipment Name', { position: 'top-center' });
-    } else if (!calibrationData.before) {
-      toast.warning('Please add the before', { position: 'top-center' });
-    } else if (!calibrationData.after) {
-      toast.warning('Please add the after', { position: 'top-center' });
-    } else if (!calibrationData.technician) {
-      toast.warning('Please add the technician', { position: 'top-center' });
+      if (calibrationData.date === '') {
+        toast.warning('Please add the date', { position: 'top-center' });
+    } else if (calibrationData.equipmentName === '') {
+        toast.warning('Please add the equipment Name', { position: 'top-center' });
+    } else if (calibrationData.before === '') {
+        toast.warning('Please add the before', { position: 'top-center' });
+    } else if (calibrationData.after === '') {
+        toast.warning('Please add the after', { position: 'top-center' });
+    } else if (calibrationData.technician === '') {
+        toast.warning('Please add the technician', { position: 'top-center' });
     } else {
-      try {
-        const calibrationDataToSend = {
+        let calibrationDataToSend ={
           ...calibrationData,
-          adminID: userData?.validUserOne?.userName || 'Unknown User',
-          adminName: userData?.validUserOne?.fname || 'Unknown Admin',
-        };
-        await dispatch(addCalibration(calibrationDataToSend));
-        toast.success('The Calibration was added successfully');
-        setTimeout(() => {
-          navigate('/view-calibration');
-        }, 500);
-      } catch (error) {
-        console.log(error);
-        toast.error('An error occurred. Please try again.');
-        setTimeout(() => {
-          navigate('/view-calibration');
-        }, 1000);
+          adminID:userData.userName,
+          adminName:userData.fname,
+        }
+       await dispatch(addCalibration(calibrationDataToSend)).unwrap();
+        toast.success( `The Calibration Added Successfully`, { position: 'top-right' })
+        setTimeout(() => navigate('/view-calibration'), 3000);
+
       }
+    } catch (error) {
+      console.log(error);
+      toast.error('An error occurred. Please try again.',error, );
+      setTimeout(()=>{navigate('/view-calibration')},1000)
     }
-  };
+  }
 
   if (loading) {
     return <div>Loading...</div>;
@@ -285,7 +288,7 @@ const Calibration = () => {
                     </div>
 
                     {/* Submit and Cancel Buttons */}
-                    <button type="submit" className="btn btn-success" style={{ color: 'white' }}>
+                    <button type="submit" className="btn btn-success" style={{ color: 'white' }} onClick={handleSubmit} >
                       Add Calibration
                     </button>
                     <button
