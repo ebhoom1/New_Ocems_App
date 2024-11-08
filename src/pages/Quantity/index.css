@@ -1,0 +1,61 @@
+.span-class{
+    background-color: greenyellow;
+    font-size: 1rem;
+    border-radius: 2px;
+    color: red;
+}
+.form-group {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    margin-bottom: 15px; /* Space between form groups */
+  }
+  
+  .form-group label {
+    margin-bottom: 5px; /* Space between label and input */
+  }
+  .popup-title {
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center;
+}
+
+.interval-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.interval-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.interval-btn.active {
+    background-color: #236A80;
+    color: white;
+}
+
+.interval-btn:hover {
+    background-color: #d9d9d9;
+}
+
+.loading-container, .no-data-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    flex-direction: column;
+    text-align: center;
+}
+
+.chart-container {
+    width: 100%;
+    height: 100%;
+    max-height: 400px;
+}

@@ -7,9 +7,14 @@ import Hedaer from '../Header/Hedaer';
 import Energy from './Energy';
 import TreatmentAnalysis from './TreatmentAnalysis';
 import Maindashboard from '../Maindashboard/Maindashboard';
+import { useOutletContext } from "react-router-dom";
+import EnergyFlow from "./EneryFlow";
+import EnergyOverview from './EnergyOverview';
 
 const EnergyLayout = () => {
   
+
+
   return (
     <div className="container-fluid">
       <div className="row" style={{ backgroundColor: 'white' }}>
@@ -27,8 +32,16 @@ const EnergyLayout = () => {
               <Maindashboard />
             </div>
           </div>
-         <Energy/>
-         <TreatmentAnalysis/>
+ <div className="row">
+          <EnergyFlow />
+        </div>
+
+       <div className="row">
+          <EnergyOverview />
+        </div>
+        <div className="row">
+          <Energy  />
+        </div>
         </div>
       </div>
     </div>
@@ -36,3 +49,4 @@ const EnergyLayout = () => {
 };
 
 export default EnergyLayout;
+

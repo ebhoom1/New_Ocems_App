@@ -7,8 +7,8 @@ import ReactFlow, {
   useEdgesState,
 } from 'react-flow-renderer';
 import SVGNode from './SVGnode';
-import { FaTrash } from 'react-icons/fa'; // Import Trash Icon
-
+/* import { FaTrash } from 'react-icons/fa'; 
+ */
 // nodeTypes definition with SVGNode
 const nodeTypes = {
   svgNode: SVGNode,
@@ -130,22 +130,22 @@ function Canvas() {
       {/* Always render the Delete box next to each node */}
       {nodes.map((node) => (
         <div
-          key={node.id}
+         /*  key={node.id}
           style={{
             position: 'absolute',
-            left: node.position.x + 50, // Adjust based on the position
+            left: node.position.x + 50, 
             top: node.position.y,
             backgroundColor: 'white',
             border: '1px solid #ccc',
             padding: '5px',
             zIndex: 1000,
             boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.68)',
-          }}
+          }} */
         >
-          <FaTrash
+          {/* <FaTrash
             onClick={() => handleDeleteNode(node.id)}
             style={{ color: 'red', cursor: 'pointer' }}
-          />
+          /> */}
         </div>
       ))}
     </div>

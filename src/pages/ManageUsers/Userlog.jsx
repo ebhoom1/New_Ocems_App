@@ -5,14 +5,15 @@ import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 import KeralaMap from './KeralaMap';
 import DashboardSam from "../Dashboard/DashboardSam";
 import Hedaer from "../Header/Hedaer";
-import { fetchUsers, addUser ,deleteUser ,addStackName, fetchUserByCompanyName,clearState  } from "../../redux/features/userLog/userLogSlice"; // Add action for fetching and adding users
+import { fetchUsers, addUser ,deleteUser ,addStackName, fetchUserByCompanyName,clearState, setFilteredUsers  } from "../../redux/features/userLog/userLogSlice"; // Add action for fetching and adding users
 import { useDispatch, useSelector } from "react-redux";
-
+import './userlog.css'
 const UsersLog = () => {
   const dispatch = useDispatch();
-  const {users, selectedUser, loading, error  } = useSelector((state) => state.userLog); // Fetch from Redux store
+  const { users, filteredUsers, loading, error } = useSelector((state) => state.userLog);
   const navigate = useNavigate();
-
+  const [sortCategory, setSortCategory] = useState("");
+  const [sortOptions, setSortOptions] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [stacks, setStacks] = useState([{ stackName: '', stationType: '' }]);
   const [formData, setformData] = useState({
@@ -136,9 +137,15 @@ const UsersLog = () => {
     }
   };
   
-if (loading) {
-return <div>Loading...</div>;
-}
+  if (loading) {
+    return (
+      <div className="loader-container">
+        <div className="loader"></div>
+        <p>Loading, please wait...</p>
+      </div>
+    );
+  }
+  
 
 if (error) {
 return <div>Error: {error.message}</div>;
@@ -333,12 +340,30 @@ const handleCancel = () => {
 };
 
 if (loading) {
-  return <div>Loading...</div>;
+  return <div>Wait a min...</div>;
 }
 
 if (error) {
   return <div>Error: {error}</div>;
 }
+/* sort */
+const handleSortCategoryChange = (category) => {
+  setSortCategory(category);
+  if (category === "Industry Type") {
+    const uniqueIndustryTypes = [...new Set(users.map(user => user.industryType))];
+    setSortOptions(uniqueIndustryTypes);
+  } else if (category === "Location") {
+    const uniqueLocations = [...new Set(users.map(user => user.district))];
+    setSortOptions(uniqueLocations);
+  }
+};
+
+const handleSortOptionSelect = (option) => {
+  const sortedUsers = [...users].filter(user =>
+    (sortCategory === "Industry Type" ? user.industryType : user.district) === option
+  );
+  dispatch(setFilteredUsers(sortedUsers));
+};
 
 
   return (
@@ -372,31 +397,66 @@ if (error) {
           </div>
 
           {/* User List */}
-          <div className="row justify-content-center mt-3">
-            <div className="col-12">
-              <div className="card shadow-sm">
-                <div className="card-body">
-                  <h5 className="card-title">User List</h5>
-                  {loading && <p>Loading...</p>}
-                  {error && <p>Error fetching users: {error.message || error.toString()}</p>}
-                  {!loading && !error && (
-                    <div className="user-list-container">
-                      <ul className="list-group">
-                        {users.map((user) => (
-                          <li key={user._id} className="list-group-item">
-                            <span onClick={() => handleUserClick(user.userName)}>
-                              {user.userName}:{user.companyName}
-                            </span>
-                           
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+          <div className="col-12 d-flex justify-content-between align-items-center m-3" >
+                    <h1 className='text-center mt-3'> User List </h1>
                 </div>
-              </div>
+          <div className="card mt-4">
+          <div className="card-body">
+          
+            <div className="sort-dropdown">
+              <label>Sort by: </label>
+              <select onChange={(e) => handleSortCategoryChange(e.target.value)}>
+                <option value="">Select</option>
+                <option value="Industry Type">Industry Type</option>
+                <option value="Location">Location</option>
+              </select>
+              {sortCategory && (
+                <select onChange={(e) => handleSortOptionSelect(e.target.value)}>
+                  <option value="">Select {sortCategory}</option>
+                  {sortOptions.map((option, index) => (
+                    <option key={index} value={option}>{option}</option>
+                  ))}
+                </select>
+              )}
             </div>
+            
+            {loading && /* From Uiverse.io by boryanakrasteva */ 
+<div class="honeycomb">
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>}
+            {error && <p>Error fetching users: {error}</p>}
+            {!loading && !error && (
+              <div className="user-list-container">
+                <table className="userlog-table">
+                  <thead>
+                    <tr>
+                      <th className=" userlog-head">Company Name</th>
+                      <th className=" userlog-head">User Name</th>
+                      <th className=" userlog-head">Industry Type</th>
+                      <th className=" userlog-head">Location</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map((user) => (
+                      <tr key={user._id} onClick={() => handleUserClick(user.userName)}>
+                        <td className="userlog-head">{user.companyName}</td>
+                        <td className=" userlog-head">{user.userName}</td>
+                        <td className=" userlog-head">{user.industryType}</td>
+                        <td className=" userlog-head">{user.district}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
+        </div>
 
           {/* Add User Form */}
           <div className="row" style={{overflowX:'hidden'}}>
@@ -634,9 +694,7 @@ if (error) {
         {/* add stack */}
         <div className="row" style={{ overflowX: 'hidden' }}>
   <div className="col-12 col-md-12 grid-margin">
-    <div className="col-12 d-flex justify-content-between align-items-center m-3">
-      <h1 className="text-center mt-5">Add Stack Names and Station Types</h1>
-    </div>
+   
     {/* main */}
     <div className="row" style={{ overflowX: 'hidden' }}>
   <div className="col-12 col-md-12 grid-margin">

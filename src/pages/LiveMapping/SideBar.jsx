@@ -27,6 +27,7 @@ import greentank from '../../assests/images/greentank.svg';
 import imagenext from '../../assests/images/imagenext.svg';
 import solar from '../../assests/images/solar.svg';
 import imagenew from '../../assests/images/imagenew.svg';
+import curvedpipe from '../../assests/images/curvedpipe.png'
 
 import './livemapping.css'
 const shapes = [
@@ -62,7 +63,8 @@ const shapes = [
 
     { id: 'flowout', label: 'Flow out', isSVG: true, svgPath: flowout },
 
-  
+    { id: 'curvedpipe', label: 'curvedpipe', isSVG: true, svgPath: curvedpipe },
+
   ];
   
 

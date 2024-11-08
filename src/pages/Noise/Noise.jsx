@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchIotDataByUserName } from "../../redux/features/iotData/iotDataSlice";
+import { fetchUserLatestByUserName } from '../../redux/features/userLog/userLogSlice';
+
 import NoiseGraphPopup from './NoiseGraphPopup';
 import CalibrationPopup from '../Calibration/CalibrationPopup';
 import CalibrationExceeded from '../Calibration/CalibrationExceeded';
@@ -10,89 +12,206 @@ import DashboardSam from '../Dashboard/DashboardSam';
 import Hedaer from '../Header/Hedaer';
 import Maindashboard from '../Maindashboard/Maindashboard';
 import DailyHistoryModal from '../Water/DailyHIstoryModal';
+import { io } from 'socket.io-client';
+import { API_URL } from '../../utils/apiConfig';
+import WaterGraphPopup from './NoiseGraphPopup';
 
+const socket = io(API_URL, { 
+  transports: ['websocket'], 
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000, // Retry every second
+});
+
+socket.on('connect', () => console.log('Connected to Socket.IO server'));
+socket.on('connect_error', (error) => console.error('Connection Error:', error));
 const Noise = () => {
   const outletContext = useOutletContext() || {};
-  const selectedUserIdFromRedux = useSelector((state) => state.selectedUser.userId);
-  const { searchTerm = '' } = outletContext;
-  const dispatch = useDispatch();
-  const { userData } = useSelector((state) => state.user);
-  const { latestData } = useSelector((state) => state.iotData);
+  const { userId } = useSelector((state) => state.selectedUser); 
+  const { searchTerm = '', searchStatus = '', handleSearch = () => {}, isSearchTriggered = false } = outletContext;
 
+  const dispatch = useDispatch();
+  const { userData,userType } = useSelector((state) => state.user);
+  const selectedUserIdFromRedux = useSelector((state) => state.selectedUser.userId);
+  const storedUserId = sessionStorage.getItem('selectedUserId'); // Retrieve userId from session storage
+  const { latestData, error } = useSelector((state) => state.iotData);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
   const [searchError, setSearchError] = useState("");
-  const [currentUserName, setCurrentUserName] = useState("KSPCB001");
+  const [currentUserName, setCurrentUserName] = useState(userType === 'admin' ? "KSPCB001" : userData?.validUserOne?.userName);
   const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [selectedStack, setSelectedStack] = useState("all");
-  const fetchUserData = async (userName) => {
-    setLoading(true);
-    try {
-      const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
-      setSearchResult(result);
-      setCompanyName(result?.companyName || "Unknown Company");
-      setSearchError("");
-      setCurrentUserName(userName); 
-    } catch (err) {
-      setSearchResult(null);
-      setCompanyName("Unknown Company");
-      setSearchError(err.message || 'No result found for this userID');
-    } finally {
-      setLoading(false);
+  const [effluentStacks, setEffluentStacks] = useState([]); // New state to store effluent stacks
+  const [realTimeData, setRealTimeData] = useState({});
+  const [noiseStacks, setNoiseStacks] = useState([]); // New state to store noise stacks
+//fetch stack names
+const fetchNoiseStacks = async (userName) => {
+  try {
+    const response = await fetch(`${API_URL}/api/get-stacknames-by-userName/${userName}`);
+    const data = await response.json(); // Make sure to parse the JSON
+    const noiseStacks = data.stackNames
+      .filter(stack => stack.stationType === 'noise')
+      .map(stack => stack.name); // Use 'name' instead of 'stackName'
+      setNoiseStacks(noiseStacks);
+  } catch (error) {
+    console.error("Error fetching effluent stacks:", error);
+  }
+};
+
+const fetchData = async (userName) => {
+  setLoading(true);
+  try {
+    const result = await dispatch(fetchUserLatestByUserName(userName)).unwrap();
+    setSearchResult(result);
+    setCompanyName(result?.companyName || "Unknown Company");
+    setSearchError("");
+  } catch (err) {
+    setSearchResult(null);
+    setCompanyName("Unknown Company");
+    setSearchError(err.message || 'No Result found for this userID');
+  } finally {
+    setLoading(false);
+  }
+};
+
+const fetchHistoryData = async (fromDate, toDate) => {
+  // Logic to fetch history data based on the date range
+  console.log('Fetching data from:', fromDate, 'to:', toDate);
+  // Example API call:
+  // const data = await dispatch(fetchHistoryDataByDate({ fromDate, toDate })).unwrap();
+};
+const downloadHistoryData = (fromDate, toDate) => {
+  // Logic to download history data based on the date range
+  console.log('Downloading data from:', fromDate, 'to:', toDate);
+  // Example API call:
+  // downloadData({ fromDate, toDate });
+};
+useEffect(() => {
+  if (userData?.validUserOne?.userType === 'user') {
+    fetchData(userId); // Fetch data only for the current user if userType is 'user'
+  } else if (userId) {
+    dispatch(fetchIotDataByUserName(userId)); // For other userTypes, fetch data normally
+  }
+}, [userId, dispatch]);
+useEffect(() => {
+  if (userId) {
+    dispatch(fetchIotDataByUserName(userId));
+  }
+}, [userId, dispatch]);
+useEffect(() => {
+  const storedUserId = sessionStorage.getItem('selectedUserId');
+  const userName = selectedUserIdFromRedux || storedUserId || currentUserName;
+  console.log(`username : ${userName}`);
+  
+  fetchData(userName);
+  fetchNoiseStacks(userName); // Fetch emission stacks
+  if (storedUserId) {
+    setCurrentUserName(storedUserId);
+  }
+}, [selectedUserIdFromRedux, currentUserName, dispatch]);
+
+/* useEffect(() => {
+  const userName = storedUserId || currentUserName;
+  console.log(`username:${userName}`)
+  fetchData(userName);
+  setCurrentUserName(userName); 
+  fetchEffluentStacks(userName);
+}, [searchTerm, currentUserName]);
+*/
+useEffect(() => {
+  if (searchTerm) {
+    fetchData(searchTerm);
+    fetchNoiseStacks(searchTerm); // Fetch effluent stacks
+  } else {
+    fetchData(currentUserName);
+    fetchNoiseStacks(currentUserName); // Fetch effluent stacks
+  }
+}, [searchTerm, currentUserName, dispatch]);
+
+useEffect(() => {
+  const userName = storedUserId || currentUserName;
+  console.log(`username : ${userName}`);
+  
+  console.log(`Joining room: ${userName}`);
+  socket.emit('joinRoom', { userId: userName });
+
+  socket.on('stackDataUpdate', (data) => {
+    console.log(`Real-time data for ${userName}:`, data);
+    if (data && data.stackData && data.stackData.length > 0) {
+      setRealTimeData((prevData) => ({
+        ...prevData,
+        ...data.stackData.reduce((acc, item) => {
+          acc[item.stackName] = item;
+          return acc;
+        }, {})
+      }));
+    } else {
+      console.warn(`No data received for ${userName}`);
     }
+  });
+  
+
+  return () => {
+    console.log(`Leaving room: ${userName}`);
+    socket.emit('leaveRoom', { userId: userName });
+    socket.off('stackDataUpdate');
   };
+}, [storedUserId, currentUserName]);
 
-  useEffect(() => {
-    const storedUserId = sessionStorage.getItem('selectedUserId');
-    const userName = searchTerm || storedUserId || selectedUserIdFromRedux || currentUserName;
-    fetchUserData(userName);
 
-    if (storedUserId) {
-      setCurrentUserName(storedUserId); 
-    }
-  }, [selectedUserIdFromRedux, searchTerm, currentUserName, dispatch]);
 
-  const handleCardClick = (card) => {
-    setSelectedCard(card);  
-    setShowPopup(true);  
-  };
 
-  const handleClosePopup = () => {
-    setShowPopup(false);
-    setSelectedCard(null);
-  };
 
-  const handleOpenCalibrationPopup = () => {
-    setShowCalibrationPopup(true);
-  };
+// Handle card click for displaying graphs
+const handleCardClick = (card, stackName) => {
+  // Ensure we use the correct userName when admin searches for a user.
+  const userName = searchTerm || currentUserName;
+  setSelectedCard({ ...card, stackName, userName });
+  setShowPopup(true);
+};
 
-  const handleCloseCalibrationPopup = () => {
-    setShowCalibrationPopup(false);
-  };
+const handleClosePopup = () => {
+  setShowPopup(false);
+  setSelectedCard(null);
+};
 
-  const handleNextUser = () => {
-    const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
-    if (!isNaN(userIdNumber)) {
-      const newUserId = `KSPCB${String(userIdNumber + 1).padStart(3, '0')}`;
-      fetchUserData(newUserId);
-    }
-  };
+const handleOpenCalibrationPopup = () => {
+  setShowCalibrationPopup(true);
+};
 
-  const handlePrevUser = () => {
-    const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
-    if (!isNaN(userIdNumber) && userIdNumber > 1) {
-      const newUserId = `KSPCB${String(userIdNumber - 1).padStart(3, '0')}`;
-      fetchUserData(newUserId);
-    }
-  };
+const handleCloseCalibrationPopup = () => {
+  setShowCalibrationPopup(false);
+};
+
+// Pagination to handle user navigation
+const handleNextUser = () => {
+  const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
+  if (!isNaN(userIdNumber)) {
+    const newUserId = `KSPCB${String(userIdNumber + 1).padStart(3, '0')}`;
+    setCurrentUserName(newUserId);
+  }
+};
+
+const handlePrevUser = () => {
+  const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
+  if (!isNaN(userIdNumber) && userIdNumber > 1) {
+    const newUserId = `KSPCB${String(userIdNumber - 1).padStart(3, '0')}`;
+    setCurrentUserName(newUserId);
+  }
+};
+
+
 /* stack */
 const handleStackChange = (event) => {
   setSelectedStack(event.target.value);
 };
+
+const filteredData = selectedStack === "all"
+  ? Object.values(realTimeData)
+  : Object.values(realTimeData).filter(data => data.stackName === selectedStack);
 
 
 const noiseParameters = [
@@ -100,203 +219,254 @@ const noiseParameters = [
 ];
 
   return (
-    <div className="container-fluid">
-      <div className="row">
-        <div className="col-lg-3 d-none d-lg-block">
-          <DashboardSam />
+<div>
+<div className="container-fluid">
+    <div className="row" >
+    <div className="col-lg-3 d-none d-lg-block ">
+                    <DashboardSam />
+                </div>
+   
+      <div className="col-lg-9 col-12 ">
+        <div className="row1 ">
+          <div className="col-12  " >
+          <div className="headermain">
+    <Hedaer />
+  </div>
+          </div>
         </div>
+
+    
+      </div>
+      
+
+    </div>
+  </div>
+
+  <div className="container-fluid">
+      <div className="row">
+     
+        <div className="col-lg-3 d-none d-lg-block">
+       
+        </div>
+     
         <div className="col-lg-9 col-12">
           <div className="row">
             <div className="col-12">
-              <Hedaer />
+              
             </div>
           </div>
-        <div className='maindashboard'>
-        <Maindashboard/>
-        </div>
-
-          <div className="d-flex justify-content-between prevnext mt-5 ps-5 pe-5">
-            <div>
-              <button className='btn btn-outline-dark' onClick={handlePrevUser} disabled={loading}>
-                <i className="fa-solid fa-arrow-left me-1"></i>Prev
-              </button>
-            </div>
-            <h2 className='text-center'>NOISE DASHBOARD</h2>
-            <div>
-              <button className='btn btn-outline-dark' onClick={handleNextUser} disabled={loading}>
-                Next <i className="fa-solid fa-arrow-right"></i>
-              </button>
-            </div>
+          <div className="maindashboard" >
+          <Maindashboard/>
           </div>
+        
+        
+ <div className="container-fluid water">
+      <div className="row">
+        
+        <div className="col-lg-12 col-12">
+        <h1 className={`text-center ${userData?.validUserOne?.userType === 'user' ? 'mt-5' : 'mt-3'}`}>
+  Noise Dashboard
+</h1>
+        
+          
+        {userData?.validUserOne?.userType === 'admin' && (
+  <div className='d-flex justify-content-between prevnext '>
+    <div>
+      <button onClick={handlePrevUser} disabled={loading} className='btn btn-outline-dark mb-2 '>
+        <i className="fa-solid fa-arrow-left me-1 "></i>Prev
+      </button>
+    </div>
+  
 
-          <div className="row">
-            <div className="col-12">
-              <h3 className="text-center">{companyName}</h3>
-            </div>
-          </div>
+    <div>
+      <button onClick={handleNextUser} disabled={loading} className='btn btn-outline-dark '>
+        Next <i className="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+)}
+        <div className="d-flex justify-content-between">
 
-       
-          <div className="d-flex justify-content-between">
-                <ul className="quick-links ml-auto mt-2">
-                    <button className="btn mb-2 mt-2" style={{ backgroundColor: '#236a80', color: 'white' }} onClick={() => setShowHistoryModal(true)}>
-                      Daily History
-                    </button>
-                  </ul>
-                  
-                 
-                 
-                  <ul className="quick-links ml-auto">
-                {latestData && (
-                  <>
-                      <h5 className='d-flex justify-content-end mt-2'>
-                      <b>Analyser Health:</b><span className={searchResult?.validationStatus ? 'text-success' : 'text-danger'}>
-                        {searchResult?.validationStatus ? 'Good' : 'Problem'}
-                      </span>
-                    </h5>
-                  </>
-                )}
+              <ul className="quick-links ml-auto ">
+                <button className="btn  mb-2 mt-2 " style={{backgroundColor:'#236a80' , color:'white'}} onClick={() => setShowHistoryModal(true)}>
+                  Daily History
+                </button>
+              </ul>
+              <ul className="quick-links ml-auto">
+              <h5 className='d-flex justify-content-end  '>
+       <b>Analyser Health:</b><span className={searchResult?.validationStatus ? 'text-success' : 'text-danger'}>{searchResult?.validationStatus ? 'Good' : 'Problem'}</span></h5>
+      
               </ul>
 
-                </div>
-                <div className="d-flex justify-content-between">
-                  {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
-                    <ul className="quick-links ml-auto">
-                      <button type="submit" onClick={handleOpenCalibrationPopup} className="btn mb-2 mt-2" style={{ backgroundColor: '#236a80', color: 'white' }}> Calibration </button>
-                    </ul>
-                  )}
-                  <ul className="quick-links ml-auto">
-                    {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
-                      <h5>Data Interval: <span className="span-class">{userData.validUserOne.dataInteval}</span></h5>
-                    )}
-                  </ul>
+              {/* stac */}
 
-
-                </div>
-                <div className="row align-items-center">
-        <div className="col-md-4">
-    {/* Dropdown for Stack Names */}
-    {searchResult?.stackData && searchResult.stackData.length > 0 && (
-      <div className="stack-dropdown">
-        <label htmlFor="stackSelect" className="label-select">Select Station:</label>
-        <div className="styled-select-wrapper">
-          <select
-            id="stackSelect"
-            className="form-select styled-select"
-            value={selectedStack}
-            onChange={handleStackChange}
-          >
-            <option value="all">All Stacks</option> {/* Default option to show all stacks */}
-            {searchResult.stackData.map((stack, index) => (
-              <option key={index} value={stack.stackName}>
-                {stack.stackName}
-              </option>
-            ))}
-          </select>
+             
+             
         </div>
-      </div>
-    )}
-  </div>
-</div>
-
+        <div className="d-flex justify-content-between">
+        {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
+                <ul className="quick-links ml-auto">
+                  <button type="submit" onClick={handleOpenCalibrationPopup} className="btn  mb-2 mt-2" style={{backgroundColor:'#236a80' , color:'white'}}> Calibration </button>
+                </ul>
+              )}
+                     <ul className="quick-links ml-auto">
+                {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
+                  <h5>Data Interval: <span className="span-class">{userData.validUserOne.dataInteval}</span></h5>
+                )}
+              </ul>
+        </div>
+        <div><div className="row align-items-center">
+          <div className="col-md-4">
+          {searchResult?.stackData && searchResult.stackData.length > 0 && (
+              <div className="stack-dropdown">
+                <label htmlFor="stackSelect" className="label-select">Select Station:</label>
+                <div className="styled-select-wrapper">
+                  <select
+                    id="stackSelect"
+                    className="form-select styled-select"
+                    value={selectedStack}
+                    onChange={handleStackChange}
+                  >
+                    <option value="all">All Stacks</option>
+                    {searchResult.stackData.map((stack, index) => (
+                      <option key={index} value={stack.stackName}>
+                        {stack.stackName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+          </div>
+          </div>
          
+         
+          {loading && (
+            <div className="spinner-container">
+              <Oval
+                height={40}
+                width={40}
+                color="#236A80"
+                ariaLabel="Fetching details"
+                secondaryColor="#e0e0e0"
+                strokeWidth={2}
+                strokeWidthSecondary={2}
+              />
+            </div>
+          )}
 
-          {searchError && (
+         {/*  {!loading && searchError && (
             <div className="card mb-4">
               <div className="card-body">
                 <h1>{searchError}</h1>
               </div>
             </div>
-          )}
- {loading && (
-          <div className="spinner-container">
-            <Oval
-              height={60}
-              width={60}
-              color="#236A80"
-              ariaLabel="Fetching details"
-              secondaryColor="#e0e0e0"
-              strokeWidth={2}
-              strokeWidthSecondary={2}
-            />
-          </div>
+          )} */}
+<div className="col-12 d-flex justify-content-center align-items-center ">
+<h3 className="text-center">{companyName}</h3>
+
+</div>
+<div className="row">
+  <div className="col-md-6">
+  <div className="border bg-light shadow "  style={{ height: "70vh" , borderRadius:'15px'}} >
+      {selectedCard ? (
+          <WaterGraphPopup
+            parameter={selectedCard.title}
+            userName={currentUserName}
+            stackName={selectedCard.stackName}
+          />
+        ) : (
+          <h5 className="text-center mt-5">Select a parameter to view its graph</h5>
         )}
-          <div className="row">
-          {!loading && searchResult && searchResult.stackData && (
-            <>
-              {searchResult.stackData.map((stack, stackIndex) => (
-                (selectedStack === "all" || selectedStack === stack.stackName) && (
-                  <div key={stackIndex} className="col-12 mb-4">
-                    <div className="stack-box mt-2">
-                      <h2 className="text-center" style={{color:'#236a80'}}><b>{stack.stackName}</b></h2>
-                      <div className="row">
-                        {noiseParameters.map((item, index) => {
-                          const value = stack[item.name];
-                          return value && value !== 'N/A' ? (
-                            <div className="col-12 col-md-4 grid-margin" key={index}>
-                              <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
-                                <div className="card-body">
-                                  <div className="row">
-                                    <div className="col-12">
-                                      <h3 className="mb-3">{item.parameter}</h3>
+      </div>
+  </div>
+  <div className="col-md-6 border overflow-auto bg-light shadow" 
+    style={{ height: "70vh", overflowY: "scroll",  borderRadius:'15px' }}>
+  {!loading && filteredData.length > 0 ? (
+                    filteredData.map((stack, stackIndex) => (
+                        noiseStacks.includes(stack.stackName) && (
+                            <div key={stackIndex} className="col-12 mb-4">
+                                <div className="stack-box">
+                                    <h4 className="text-center mt-3">{stack.stackName}</h4>
+                                    <div className="row">
+                                        {noiseParameters.map((item, index) => {
+                                            const value = stack[item.name];
+                                            return value && value !== 'N/A' ? (
+                                                <div className="col-12 col-md-4 grid-margin" key={index}>
+                                                    <div className="card mb-4 stack-card" style={{border:'none' , color:'white'}}   onClick={() =>
+                            handleCardClick({ title: item.name }, stack.stackName, currentUserName)
+                          }>
+                                                        <div className="card-body">
+                                                            <h5 style={{color:'#ffff'}}>{item.parameter}</h5>
+                                                            <p>
+                                                                <strong style={{ color: '#ffff', fontSize:'24px' }}>{value}</strong> {item.value}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : null;
+                                        })}
                                     </div>
-                                    <div className="col-12 mb-3">
-                                      <h6>
-                                        <strong className="strong-value" style={{ color: '#236A80' }}>
-                                          {value}
-                                        </strong>
-                                        <span>{item.value}</span>
-                                      </h6>
-                                    </div>
-                                  </div>
                                 </div>
-                              </div>
                             </div>
-                          ) : null;
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )
-              ))}
-            </>
-          )}
-        </div>
-            
+                        )
+                    ))
+                ) : (
+                  <div class="col-12 d-flex justify-content-center align-items-center mt-5">
+                  <h5>Waiting real-time data available</h5>
+                </div>
+                )}
+  </div>
+</div>
 
-          {showPopup && selectedCard && (
-            <NoiseGraphPopup
-              isOpen={showPopup}
-              onRequestClose={handleClosePopup}
-              parameter={selectedCard.title}
-              userName={currentUserName}
-            />
-          )}
 
-          {showCalibrationPopup && (
-            <CalibrationPopup onClose={handleCloseCalibrationPopup} />
-          )}
 
-          <CalibrationExceeded />
+        {showCalibrationPopup && (
+          <CalibrationPopup
+            userName={userData?.validUserOne?.userName}
+            onClose={handleCloseCalibrationPopup}
+          />
+        )}
+      
+
+        <DailyHistoryModal 
+  isOpen={showHistoryModal} 
+  onRequestClose={() => setShowHistoryModal(false)} 
+/>
+
         </div>
       </div>
 
       <footer className="footer">
-        <div className="container-fluid clearfix text-center mt-3">
-          <span className="d-block text-center text-sm-left d-sm-inline-block">
-            Copyright ©2023{" "}
-            <a href="https://ebhoom.com" target="_blank" rel="noopener noreferrer">
-              Ebhoom
-            </a>
-            . All rights reserved
+        <div className="container-fluid clearfix">
+          <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
+          
+          </span>
+          <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
+            {" "}  Ebhoom Control and Monitor System <br />
+            ©{" "}
+            <a href="" target="_blank">
+              Ebhoom Solutions LLP
+            </a>{" "}
+            2023
           </span>
         </div>
       </footer>
+    </div>
+
+        </div>
+      </div>
       <DailyHistoryModal
-          isOpen={showHistoryModal}
-          onRequestClose={() => setShowHistoryModal(false)}
-          fetchData={fetchUserData}
-          downloadData={() => {}}
-        />
+        isOpen={showHistoryModal}
+        onRequestClose={() => setShowHistoryModal(false)}
+        fetchData={fetchHistoryData}
+        downloadData={downloadHistoryData}
+      />
+
+    </div>
+    
+
     </div>
   );
 };

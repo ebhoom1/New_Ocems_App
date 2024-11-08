@@ -37,6 +37,17 @@ export const fetchUserByUserName = createAsyncThunk(
     }
   }  
 );
+export const fetchUserLatestByUserName = createAsyncThunk(
+  'userLog/fetchUserLatestByUserName',
+  async (userName, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/latest/${userName}`);
+      return response.data.data; // Extract 'data' directly for use in the component
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Error fetching latest data.");
+    }
+  }
+);
 export const fetchUserByCompanyName = createAsyncThunk(
   'userLog/fetchUserByCompanyName',
   async(companyName,{rejectWithValue})=>{
@@ -154,6 +165,7 @@ const userLogSlice = createSlice({
     filteredUsers: [],
     selectedUser: null,
     stackNames: [], 
+    latestUser: null,
     loading: false,
     error: null,
   },
@@ -191,6 +203,19 @@ const userLogSlice = createSlice({
       .addCase(fetchUserById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      // Add cases for fetchUserLatestByUserName
+      .addCase(fetchUserLatestByUserName.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUserLatestByUserName.fulfilled, (state, action) => {
+        state.loading = false;
+        state.latestUser = action.payload; // Store the latest user data
+      })
+      .addCase(fetchUserLatestByUserName.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to fetch the latest user data';
       })
       .addCase(fetchUserByUserName.pending,(state)=>{
         state.loading = false;

@@ -7,6 +7,8 @@ import Hedaer from '../Header/Hedaer';
 import WaterFlow from './WaterFlow';
 import TotalSewageGraph from './TotalSewageGraph';
 import Maindashboard from '../Maindashboard/Maindashboard';
+import QuantityFlow from './QuantityFlow';
+import EffluentFlowOverview from './EffluentFlowOverview';
 
 const Quantity = () => {
   
@@ -26,11 +28,35 @@ const Quantity = () => {
             <div className="col-12">
               <Maindashboard />
             </div>
+            <div className="col-12">
+            <h3 className="page-title text-center">EFFLUENT FLOW DASHBOARD</h3>
           </div>
+          </div>
+          <div className="row">
+          <QuantityFlow />
+        </div>
+        <div className="row">
+          <EffluentFlowOverview />
+        </div>
+
          <WaterFlow/>
-         <TotalSewageGraph/>
         </div>
       </div>
+      <footer className="footer">
+        <div className="container-fluid clearfix">
+          <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
+          
+          </span>
+          <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
+            {" "}  Ebhoom Control and Monitor System <br />
+            ©{" "}
+            <a href="" target="_blank">
+              Ebhoom Solutions LLP
+            </a>{" "}
+            2023
+          </span>
+        </div>
+      </footer>
     </div>
   );
 };

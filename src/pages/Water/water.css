@@ -1,6 +1,5 @@
 
 .card {
- 
   background: linear-gradient(-90deg, #ffffff, #51b8d7);
   border: none;
   color: white;
@@ -8,8 +7,14 @@
   overflow: hidden; /* Prevent content from escaping the card boundary */
   position: relative; /* Ensure child elements are positioned relative to the card */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.4s ease, box-shadow 0.4s ease;  /* Optional: Add shadow for a modern look */
+  transition: transform 0.4s ease, box-shadow 0.4s ease; /* Optional: Add shadow for a modern look */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensures the footer of the card aligns at the bottom */
+  height: 100%; /* Ensure all cards have the same height */
+  min-height: 200px; /* Minimum height to handle varying content size */
 }
+
 .cardwater:hover{
   transform: scale(1.05);
 }
@@ -113,3 +118,8 @@
   background-color: white;/* below the header but above the regular content */
 }
 
+.stack-box {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure that each stack box fills the parent container */
+}

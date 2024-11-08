@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   CartesianGrid,
   XAxis,
@@ -9,114 +9,72 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+// Dummy Data
+const dummyData = [
+  { timestamp: "2024-07-08", inflow: 50, finalflow: 30 },
+  { timestamp: "2024-07-09", inflow: 60, finalflow: 35 },
+  { timestamp: "2024-07-10", inflow: 55, finalflow: 32 },
+  { timestamp: "2024-07-11", inflow: 70, finalflow: 40 },
+  { timestamp: "2024-07-12", inflow: 65, finalflow: 38 },
+];
 
 const TotalSewageGraph = () => {
-  const [interval, setInterval] = useState("year");
+  const [averageData, setAverageData] = useState([]);
+  const [interval, setInterval] = useState("day");
 
-  // Dummy data for the BarChart
-  const dummyData = [
-    { date: "2023-01-01", inflow: 220, finalFlow: 180 },
-    { date: "2023-02-01", inflow: 300, finalFlow: 260 },
-    { date: "2023-03-01", inflow: 250, finalFlow: 240 },
-    { date: "2023-04-01", inflow: 280, finalFlow: 250 },
-    { date: "2023-05-01", inflow: 310, finalFlow: 290 },
-    { date: "2023-06-01", inflow: 260, finalFlow: 240 },
-    { date: "2023-07-01", inflow: 290, finalFlow: 270 },
-    { date: "2023-08-01", inflow: 320, finalFlow: 300 },
-    { date: "2023-09-01", inflow: 270, finalFlow: 250 },
-    { date: "2023-10-01", inflow: 340, finalFlow: 320 },
-  ];
+  useEffect(() => {
+    // Simulate fetching data with dummy data
+    setAverageData(dummyData);
+  }, []);
 
   const handleIntervalChange = (newInterval) => {
     setInterval(newInterval);
-    toast.info(`Interval changed to: ${newInterval}`);
+    console.log(`Interval changed to: ${newInterval}`);
   };
 
   const formatXAxis = (tickItem) => {
     const date = new Date(tickItem);
-    if (interval === "hour") {
-      return date.toLocaleTimeString();
-    } else if (interval === "day") {
-      return date.toLocaleDateString("en-US", { weekday: "short" });
-    } else if (interval === "week" || interval === "sixmonth") {
-      return date.toLocaleDateString();
-    } else if (interval === "month") {
-      return date.toLocaleString("en-US", { month: "short" });
-    } else if (interval === "year") {
-      return date.getFullYear();
+    switch (interval) {
+      case "hour":
+        return date.toLocaleTimeString();
+      case "day":
+        return date.toLocaleDateString("en-US", { weekday: "short" });
+      case "week":
+      case "sixmonth":
+        return date.toLocaleDateString();
+      case "month":
+        return date.toLocaleString("en-US", { month: "short" });
+      case "year":
+        return date.getFullYear();
+      default:
+        return tickItem;
     }
-    return tickItem;
   };
 
   return (
-    <div className="cardnew mt-4 mb-5">
+    <div className="card mt-4 mb-5 col-lg-12">
       <div className="card-body">
-        <h2 className="m-3 mt-4">Total FL Sewage Graph</h2>
+        <h2 className="m-3">Total FL Sewage Graph</h2>
         <div className="btn-group" role="group">
-          <button
-            type="button"
-            className="btn text-light "
-            style={{backgroundColor:'#236a80'}}
-            onClick={() => handleIntervalChange("hour")}
-          >
-            Hour
-          </button>
-          <button
-            type="button"
-            className="btn text-light"
-            style={{backgroundColor:'#236a80'}}
-            onClick={() => handleIntervalChange("day")}
-          >
-            Day
-          </button>
-          <button
-            type="button"
-            className="btn text-light "
-            style={{backgroundColor:'#236a80'}}
-            onClick={() => handleIntervalChange("week")}
-          >
-            Week
-          </button>
-          <button
-            type="button"
-            className="btn text-light"
-            style={{backgroundColor:'#236a80'}}
-
-            onClick={() => handleIntervalChange("month")}
-          >
-            Month
-          </button>
-          <button
-            type="button"
-            className="btn text-light"
-            style={{backgroundColor:'#236a80'}}
-
-            onClick={() => handleIntervalChange("sixmonth")}
-          >
-            Six Months
-          </button>
-          <button
-            type="button"
-            className="btn text-light "
-            style={{backgroundColor:'#236a80'}}
-
-            onClick={() => handleIntervalChange("year")}
-          >
-            Year
-          </button>
+          <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('hour')}>Hour</button>
+          <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('day')}>Day</button>
+          <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('week')}>Week</button>
+          <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('month')}>Month</button>
+          <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('sixmonth')}>Six Months</button>
+          <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('year')}>Year</button>
         </div>
         <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={dummyData} style={{ color: "white" }}>
+          <BarChart data={averageData}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" tickFormatter={formatXAxis} />
+            <XAxis dataKey="timestamp" tickFormatter={formatXAxis} />
             <YAxis />
             <Tooltip />
             <Legend />
-            {/* Updated Colors */}
-            <Bar dataKey="inflow" fill="#236a80" name="Inflow" />
-            <Bar dataKey="finalFlow" fill="#74a3b6" name="Final Flow" />
+            <Bar dataKey="inflow" fill="#8884d8" />
+            <Bar dataKey="finalflow" fill="#82ca9d" />
           </BarChart>
         </ResponsiveContainer>
         <ToastContainer />

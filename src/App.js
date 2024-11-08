@@ -90,11 +90,11 @@ function App() {
          
             <Routes>
              
-                <Route path="/login" element={<Log />} />
+                <Route path="/login" element={<LoginNew />} />
                 <Route path="/reset-password" element={<Reset />} />
                 <Route path="/reset" element={<ResetEmail />} />
                 <Route path='/download-data' element={<Download/>}></Route>
-                <Route path="/" element={<LoginNew />} />
+                <Route path="/" element={<Log />} />
 
 
               {/* Admin Routes */}

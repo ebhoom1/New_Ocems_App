@@ -51,7 +51,7 @@ const TreatmentAnalysis = () => {
   };
 
   return (
-    <div className="cardnew mt-4 mb-5">
+    <div className="cardm mt-4 mb-5">
       <div className="card-body">
         <h2 className="m-3">
           Trending Analysis - FL - STP Incomer Energy Consumption, kWh
@@ -59,62 +59,51 @@ const TreatmentAnalysis = () => {
         <div className="btn-group" role="group">
           <button
             type="button"
-            className="btn text-light"
-            style={{backgroundColor:'#236a80'}}
+            className="btn btn-primary"
             onClick={() => handleIntervalChange("hour")}
           >
             Hour
           </button>
           <button
             type="button"
-            className="btn text-light"
-            style={{backgroundColor:'#236a80'}}
-
+            className="btn btn-primary"
             onClick={() => handleIntervalChange("day")}
           >
             Day
           </button>
           <button
             type="button"
-            className="btn text-light"
-            style={{backgroundColor:'#236a80'}}
-
+            className="btn btn-primary"
             onClick={() => handleIntervalChange("week")}
           >
             Week
           </button>
           <button
             type="button"
-            className="btn text-light"
-            style={{backgroundColor:'#236a80'}}
-
+            className="btn btn-primary"
             onClick={() => handleIntervalChange("month")}
           >
             Month
           </button>
           <button
             type="button"
-            className="btn text-light"
-            style={{backgroundColor:'#236a80'}}
-
+            className="btn btn-primary"
             onClick={() => handleIntervalChange("sixmonth")}
           >
             Six Months
           </button>
           <button
             type="button"
-            className="btn text-light"
-            style={{backgroundColor:'#236a80'}}
-
+            className="btn btn-primary"
             onClick={() => handleIntervalChange("year")}
           >
             Year
           </button>
         </div>
         <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={dummyData} style={{color:'white'}}>
+          <BarChart data={dummyData}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" tickFormatter={formatXAxis}  />
+            <XAxis dataKey="date" tickFormatter={formatXAxis} />
             <YAxis />
             <Tooltip />
             <Legend />
