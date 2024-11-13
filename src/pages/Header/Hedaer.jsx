@@ -123,7 +123,7 @@ function Header() {
   return (
     <div className="ms-0">
       <div className="mt-4 col-lg-12 ">
-        <Navbar expand="lg" className=" header-navbar">
+        <Navbar expand="lg" className=" header-navbar" style={{ position: 'fixed', top: '0', zIndex: '1000', backgroundColor: 'white' }}>
           <div className="w-100 px-2 d-flex align-items-center justify-content-between">
           <Navbar.Brand href="#home" className="brand-text">
       <span className="d-none d-lg-inline">User ID: </span>

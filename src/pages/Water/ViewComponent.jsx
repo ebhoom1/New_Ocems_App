@@ -1,121 +1,103 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import DashboardSam from '../Dashboard/DashboardSam';
-import Hedaer from '../Header/Hedaer';
+import ReactPaginate from 'react-paginate';
+
+const ITEMS_PER_PAGE = 25; // Number of items per page
 
 const ViewComponent = () => {
   const location = useLocation();
   const { data, fromDate, toDate } = location.state || {};
 
-  console.log('Data received:', data);
-  console.log('From Date:', fromDate);
-  console.log('To Date:', toDate);
-  console.log('Type of data:', typeof data);  // Log the type of data
+  const [currentPage, setCurrentPage] = useState(0);
+  const [currentData, setCurrentData] = useState([]);
 
-  // Fields to exclude
-  const fieldsToExclude = [
-    '_id', 
-    'product_id', 
-    'userName', 
-    'companyName', 
-    'email', 
-    'mobileNumber', 
-    'validationStatus', 
-    'validationMessage', 
-    'timestamp', // Ensure this is included
-    '__v',
-    'topic',
-    'industryType'
-  ];
+  // Update currentData whenever currentPage or data changes
+  useEffect(() => {
+    const offset = currentPage * ITEMS_PER_PAGE;
+    const slicedData = data?.slice(offset, offset + ITEMS_PER_PAGE) || [];
+    setCurrentData(slicedData);
+  }, [currentPage, data]);
 
-  // Function to check if a key should be excluded
-  const shouldExclude = (key) => fieldsToExclude.includes(key);
-
-  // Function to get date fields and non-date fields
-  const getOrderedFields = (item) => {
-    const dateFields = Object.keys(item).filter(key => key.toLowerCase().includes('date') || key.toLowerCase().includes('time'));
-    const nonDateFields = Object.keys(item).filter(key => !shouldExclude(key) && !dateFields.includes(key));
-    return [...dateFields, ...nonDateFields];
+  // Handle pagination click
+  const handlePageChange = (selectedPage) => {
+    setCurrentPage(selectedPage.selected); // Update the current page based on user selection
   };
 
-  // Render the component with the design from the Account component
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return `${String(date.getUTCDate()).padStart(2, '0')}/${String(
+      date.getUTCMonth() + 1
+    ).padStart(2, '0')}/${date.getUTCFullYear()}`;
+  };
+
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    return `${String(date.getUTCHours()).padStart(2, '0')}:${String(
+      date.getUTCMinutes()
+    ).padStart(2, '0')}:${String(date.getUTCSeconds()).padStart(2, '0')}`;
+  };
+
+  const filterStackData = (stack) => {
+    const { _id, ...filteredData } = stack;
+    return filteredData;
+  };
+  const handlePrint = () => {
+    window.print();
+  };
   return (
     <div className="container-fluid">
-      <div className="row" style={{ backgroundColor: 'white' }}>
-        {/* Sidebar (hidden on mobile) */}
-        <div className="col-lg-3 d-none d-lg-block">
-          <DashboardSam />
+      <h4>From Date: {fromDate}</h4>
+      <h4>To Date: {toDate}</h4>
+
+      {currentData.length > 0 ? (
+        <div style={{ overflowX: 'auto' }}>
+          <table className="table table-bordered">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                {Object.keys(filterStackData(currentData[0]?.stackData[0] || {})).map((key) => (
+                  <th key={key}>{key}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {currentData.map((item, index) =>
+                item.stackData.map((stack, stackIndex) => (
+                  <tr key={`${index}-${stackIndex}`}>
+                    <td>{formatDate(item.timestamp)}</td>
+                    <td>{formatTime(item.timestamp)}</td>
+                    {Object.values(filterStackData(stack)).map((value, i) => (
+                      <td key={`${stackIndex}-${i}`}>{value}</td>
+                    ))}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-        {/* Main content */}
-        <div className="col-lg-9 col-12">
-          <div className="row">
-            <div className="col-12">
-              <Hedaer />
-            </div>
-          </div>
-          <div>
-            <div className="row" style={{ overflowX: 'hidden' }}>
-              <div className="col-12 col-md-12 grid-margin">
-                 <div className="col-12 d-flex justify-content-center align-items-center m-2 text-center">
-                  <h1 className="text-center mt-3" style={{ justifyContent: 'center' }}></h1>
-                </div> 
-                <div className="card mt-2">
-                  <div className="card-body">
-                    <h4>From Date: {fromDate}</h4>
-                    <h4>To Date: {toDate}</h4>
-                    
-                    {typeof data === 'object' && data !== null ? (
-                      Array.isArray(data) ? (
-                        <div style={{ overflowX: 'auto' }}>
-                          <table className="table table-bordered " >
-                            <thead>
-                              <tr>
-                                {getOrderedFields(data[0]).map((key) => (
-                                  <th key={key}>{key}</th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {data.map((item, index) => (
-                                <tr key={index}>
-                                  {getOrderedFields(item).map((key, i) => (
-                                    <td key={i}>{JSON.stringify(item[key], null, 2)}</td>
-                                  ))}
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      ) : (
-                        <div style={{ overflowX: 'auto' }}>
-                          <table className="table table-bordered">
-                            <thead>
-                              <tr>
-                                {getOrderedFields(data).map((key) => (
-                                  <th key={key}>{key}</th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                {getOrderedFields(data).map((key, index) => (
-                                  <td key={index}>{JSON.stringify(data[key], null, 2)}</td>
-                                ))}
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      )
-                    ) : (
-                      <p>No data available or data is in an unexpected format.</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      ) : (
+        <p>No data available or data is in an unexpected format.</p>
+      )}
+
+      {data && data.length > ITEMS_PER_PAGE && (
+        <ReactPaginate
+          previousLabel={'Previous'}
+          nextLabel={'Next'}
+          breakLabel={'...'}
+          pageCount={Math.ceil(data.length / ITEMS_PER_PAGE)}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={5}
+          onPageChange={handlePageChange}
+          containerClassName={'pagination'}
+          activeClassName={'active'}
+          disabledClassName={'disabled'}
+          breakClassName={'break-me'}
+        />
+      )}
+      <button className="btn btn-primary" onClick={handlePrint} style={{ marginTop: '20px' }}>
+        Print This Page
+      </button>
     </div>
   );
 };

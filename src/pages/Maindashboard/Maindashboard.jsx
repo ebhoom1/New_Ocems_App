@@ -44,13 +44,15 @@ function Maindashboard() {
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav" >
                 <Nav className="w-100 justify-content-evenly ">
-                  <Nav.Link href="/water">Effluent</Nav.Link>
+                  <Nav.Link href="/water">Effluent/Sewage</Nav.Link>
                   <Nav.Link href="/ambient">Stack Emmission </Nav.Link>
                   <Nav.Link href="/noise">Noise</Nav.Link>
-                  <Nav.Link href="/quantity">Quantity</Nav.Link>
+                  <Nav.Link href="/quantity">Water</Nav.Link>
+                  <Nav.Link href="/waste">Waste</Nav.Link>
+
 
                 
-                                 <Nav.Link href="/energy">Energy</Nav.Link>
+                  <Nav.Link href="/energy">Energy</Nav.Link>
           {/*         
                   <Dropdown>
   <Dropdown.Toggle 

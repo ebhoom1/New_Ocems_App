@@ -10,10 +10,10 @@ import { Oval } from 'react-loader-spinner';
 import DailyHistoryModal from "./DailyHIstoryModal";
 import { API_URL } from "../../utils/apiConfig";
 import { io } from 'socket.io-client';
-import Quantity from "../Quantity/Quantity";
 import Hedaer from "../Header/Hedaer";
 import Maindashboard from '../Maindashboard/Maindashboard';
 import DashboardSam from '../Dashboard/DashboardSam';
+import effluent from '../../assests/images/effluentimage.svg'
 
 // Initialize Socket.IO
 const socket = io(API_URL, { 
@@ -60,7 +60,6 @@ const Water = () => {
     { parameter: "TSS", value: 'mg/l', name: 'TSS' },
     { parameter: "ORP", value: 'mV', name: 'ORP' },
     { parameter: "Nitrate", value: 'mg/l', name: 'nitrate' },
-    { parameter: "Ammonia-N", value: 'mg/l', name: 'ammonicalNitrogen' },
     { parameter: "DO", value: 'mg/l', name: 'DO' },
     {parameter:"Total Flow", value:'m3/Day', name:'Totalizer_Flow'},
     { parameter: "Chloride", value: 'mmol/l', name: 'chloride' },
@@ -288,7 +287,7 @@ const Water = () => {
         
         <div className="col-lg-12 col-12">
         <h1 className={`text-center ${userData?.validUserOne?.userType === 'user' ? 'mt-5' : 'mt-3'}`}>
-  Effluent Dashboard
+  Effluent/Sewage Dashboard
 </h1>
         
           
@@ -411,7 +410,7 @@ const Water = () => {
                         effluentStacks.includes(stack.stackName) && (
                             <div key={stackIndex} className="col-12 mb-4">
                                 <div className="stack-box">
-                                    <h4 className="text-center mt-3">{stack.stackName}</h4>
+                                    <h4 className="text-center mt-3">{stack.stackName} <img src={effluent} alt="effluent image"  width={'100px'}/></h4>
                                     <div className="row">
                                         {waterParameters.map((item, index) => {
                                             const value = stack[item.name];
@@ -460,6 +459,10 @@ const Water = () => {
 
         </div>
       </div>
+      <div>
+        <CalibrationExceeded/>
+      </div>
+
 
       <footer className="footer">
         <div className="container-fluid clearfix">

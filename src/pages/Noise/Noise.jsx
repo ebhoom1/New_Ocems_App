@@ -437,6 +437,9 @@ const noiseParameters = [
 
         </div>
       </div>
+      <div>
+        <CalibrationExceeded/>
+      </div>
 
       <footer className="footer">
         <div className="container-fluid clearfix">

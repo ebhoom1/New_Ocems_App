@@ -10,7 +10,6 @@ import Reset from './pages/Resetpassword/Reset';
 import ResetEmail from './pages/Resetpassword/ResetEmail';
 import Maindashboard from './pages/Maindashboard/Maindashboard';
 import Quality from './pages/Quality/Quality';
-import Quantity from './pages/Quantity/Quantity';
 import Airambient from './pages/AirAmbient/Airambient';
 import Water from './pages/Water/Water';
 import Noise from './pages/Noise/Noise';
@@ -52,8 +51,9 @@ import Mainsam from './pages/Maindashboard/Mainsam';
 import Chat from './pages/Chat/Chat';
 import LIveLayout from './pages/LiveMapping/LIveLayout';
 import ViewComponent from './pages/Water/ViewComponent';
-import EnergyLayout from './pages/Energy/EnergyLayout';
-
+import Waste from './pages/Waste/Waste'
+import EnergyDashboard from './pages/Energy/EnergyLayout';
+import FlowLayout from './pages/QuantityNew/FlowLayout'
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -110,11 +110,11 @@ function App() {
 
                   <Route path="/dashboard-dash" element={<Maindashboard />} />
                   <Route path="/quality" element={<Quality />} />
-                  <Route path="/quantity" element={<Quantity />} />
+                  <Route path="/quantity" element={<FlowLayout />} />
                   <Route path="/ambient" element={<Airambient />} />
                   <Route path="/water" element={<Water />} />
                   <Route path="/noise" element={<Noise />} />
-                  <Route path="/energy" element={<EnergyLayout />} />
+                  <Route path="/energy" element={<EnergyDashboard />} />
                   <Route path="/download-data" element={<Download />} />
                   <Route path="/add-calibration" element={<Calibrationpage />} />
                   <Route path="/view-calibration" element={<ViewCalibration />} />
@@ -142,6 +142,8 @@ function App() {
                   <Route path="/live-station" element={<LIveLayout />} />
                   <Route path="/chat" element={<Chat />} />
                   <Route path="/view-data" element={<ViewComponent />} />
+                  <Route path="/waste" element={<Waste />} />
+
 
 
 
@@ -161,7 +163,7 @@ function App() {
                   <Route path="/view-report" element={<ViewReport />} />
                   <Route path="/edit-report/:userName" element={<EditReport />} />
                   <Route path="/download-IoT-Data" element={<DownloadData />} />
-                  <Route path="/quantity" element={<Quantity />} />
+                  <Route path="/quantity" element={<FlowLayout />} />
                   <Route path="/energy" element={<Energy />} />
                   <Route path="/support-analyser" element={<SupportAnalyser />} />
                   <Route path="/view-report/:userName" element={<ViewReportUser />} />

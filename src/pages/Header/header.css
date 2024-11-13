@@ -23,11 +23,10 @@
  
    /* Optional: adds shadow for better visibility */
     
-   position: fixed; /* This will make the header stick to the top */
-   top: 0; /* Ensures it sticks right at the top of the viewport */
-   z-index: 1000; /* High z-index to ensure it stays above other content */
-  /* Ensures the navbar spans the full width of the viewport */
-   background: white; /* Set a background color to ensure text doesn't blend in with content below */
+  /*  position: fixed; 
+   top: 0; 
+   z-index: 1000;
+   background: white; */ /* Set a background color to ensure text doesn't blend in with content below */
    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; /* Optional: adds shadow for better visibility */
   display: flex;
   align-items: center;

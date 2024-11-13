@@ -1,28 +1,121 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchUser } from '../../redux/features/user/userSlice';
-import DashboardSam from '../Dashboard/DashboardSam';
-import Hedaer from '../Header/Hedaer';
-import Energy from './Energy';
-import TreatmentAnalysis from './TreatmentAnalysis';
-import Maindashboard from '../Maindashboard/Maindashboard';
+import React, { useState } from "react";
+import TreatmentAnalysis from "./TreatmentAnalysis";
 import { useOutletContext } from "react-router-dom";
-import EnergyFlow from "./EneryFlow";
-import EnergyOverview from './EnergyOverview';
+import Energy from "./Energy";
+import EnergyOverview from "./EnergyOverview";
+import CalibrationExceeded from "../Calibration/CalibrationExceeded";
+import BillCalculator from "./BillCalculator";
+import EnergyFlow from "./EnergyFlow";
+import EnergyConsumptionCards from "./EnergyConsumptionCards";
+import DashboardSam from "../Dashboard/DashboardSam";
+import Header from "../Header/Hedaer";
+import Maindashboard from "../Maindashboard/Maindashboard";
+import { useSelector } from "react-redux";
+import PrimaryStationSelector from "./PrimaryStationSelector";
+import EnergyDataModal from "./EnergyDataModal";
+import ViewDifference from './ViewDifference'
+const EnergyDashboard = () => {
+  const { userData,userType } = useSelector((state) => state.user);
 
-const EnergyLayout = () => {
-  
-
+  const selectedUserIdFromRedux = useSelector((state) => state.selectedUser.userId);
+  const storedUserId = sessionStorage.getItem('selectedUserId'); // Retrieve userId from session storage
+  const [primaryStation, setPrimaryStation] = useState("");  // State for primary station
 
   return (
     <div className="container-fluid">
       <div className="row" style={{ backgroundColor: 'white' }}>
-        {/* Sidebar (hidden on mobile) */}
+       
         <div className="col-lg-3 d-none d-lg-block ">
           <DashboardSam />
         </div>
-        {/* Main content */}
+     
+        <div className="col-lg-9 col-12 ">
+          <div className="row">
+            <div className="col-12">
+              <Header />
+            </div>
+            <div className="col-12">
+              <Maindashboard />
+            </div>
+           
+          </div>
+       {/*    <div className="row">
+                  <EnergyFlow primaryStation={primaryStation} setPrimaryStation={setPrimaryStation} searchTerm={storedUserId} />
+
+        </div>
+        <div className="row">
+           <EnergyConsumptionCards/>
+        </div>
+        <div className="row">
+        <div className="row">
+  <PrimaryStationSelector
+    stations={Array.isArray(userData?.stackData) ? userData.stackData.filter(stack => stack.stationType === 'energy').map(stack => stack.stackName) : []}
+    userName={userData?.validUserOne?.userName || 'Unknown User'}
+    setPrimaryStation={setPrimaryStation}
+    primaryStation={primaryStation}
+  />
+</div>
+
+
+        </div>
+
+        <div className="row">
+          <EnergyOverview />
+        </div>
+        <div className="row">
+          <Energy searchTerm={storedUserId} userData={userData} userType={userType} />
+        </div>
+        <div className="row mt-5">
+        <PieChartEnergy/>
+
+        </div>
+        <EnergyDataModal/>
+      
+        <div className="row p-5">
+          <BillCalculator searchTerm={storedUserId} userData={userData} userType={userType} />
+        </div> */}
+         <div className="row">
+          <EnergyFlow primaryStation={primaryStation} setPrimaryStation={setPrimaryStation} searchTerm={storedUserId} />
+        </div>
+        <div className="row">
+          <EnergyOverview />
+        </div>
+        <div className="row">
+          <Energy searchTerm={storedUserId} userData={userData} userType={userType} />
+        </div>
+       <ViewDifference/>
+        
+        </div>
+      </div>
+      <footer className="footer">
+        <div className="container-fluid clearfix">
+          <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
+          
+          </span>
+          <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
+            {" "}  Ebhoom Control and Monitor System <br />
+            ©{" "}
+            <a href="" target="_blank">
+              Ebhoom Solutions LLP
+            </a>{" "}
+            2023
+          </span>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default EnergyDashboard;
+/* 
+
+ <div className="container-fluid">
+      <div className="row" style={{ backgroundColor: 'white' }}>
+       
+        <div className="col-lg-3 d-none d-lg-block ">
+          <DashboardSam />
+        </div>
+     
         <div className="col-lg-9 col-12 ">
           <div className="row">
             <div className="col-12">
@@ -31,22 +124,44 @@ const EnergyLayout = () => {
             <div className="col-12">
               <Maindashboard />
             </div>
+            <div className="col-12">
+            <h3 className="page-title text-center">Energy Dashboard</h3>
           </div>
- <div className="row">
-          <EnergyFlow />
+          </div>
+          <div className="row">
+                  <EnergyFlow primaryStation={primaryStation} setPrimaryStation={setPrimaryStation} searchTerm={searchTerm} />
+
+        </div>
+        <div className="row">
+           <EnergyConsumptionCards/>
         </div>
 
-       <div className="row">
+        <div className="row">
           <EnergyOverview />
         </div>
         <div className="row">
-          <Energy  />
+          <Energy searchTerm={searchTerm} userData={userData} userType={userType} />
+        </div>
+       
+        <div className="row p-5">
+          <BillCalculator searchTerm={searchTerm} userData={userData} userType={userType} />
         </div>
         </div>
       </div>
+      <footer className="footer">
+        <div className="container-fluid clearfix">
+          <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
+          
+          </span>
+          <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
+            {" "}  Ebhoom Control and Monitor System <br />
+            ©{" "}
+            <a href="" target="_blank">
+              Ebhoom Solutions LLP
+            </a>{" "}
+            2023
+          </span>
+        </div>
+      </footer>
     </div>
-  );
-};
-
-export default EnergyLayout;
-
+ */

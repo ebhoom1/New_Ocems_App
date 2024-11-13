@@ -12,7 +12,7 @@ import DailyHistoryModal from "../Water/DailyHIstoryModal";
 import { io } from 'socket.io-client';
 import { fetchUserLatestByUserName } from "../../redux/features/userLog/userLogSlice";
 import WaterGraphPopup from "../Water/WaterGraphPopup";
-
+import air from '../../assests/images/air.svg'
 const socket = io(API_URL, { 
   transports: ['websocket'], 
   reconnectionAttempts: 5,
@@ -48,13 +48,13 @@ const Airambient = () => {
   const fetchEmissionStacks = async (userName) => {
     try {
       const response = await fetch(`${API_URL}/api/get-stacknames-by-userName/${userName}`);
-      const data = await response.json();
-      const filteredStacks = data.stackNames
-        .filter((stack) => stack.stationType === 'emission')
-        .map((stack) => stack.name);
-      setEmissionStacks(filteredStacks);
+      const data = await response.json(); // Make sure to parse the JSON
+      const effluentStacks = data.stackNames
+        .filter(stack => stack.stationType === 'emission')
+        .map(stack => stack.name); // Use 'name' instead of 'stackName'
+      setEmissionStacks(effluentStacks);
     } catch (error) {
-      console.error("Error fetching emission stacks:", error);
+      console.error("Error fetching effluent stacks:", error);
     }
   };
 
@@ -62,14 +62,24 @@ const Airambient = () => {
     setLoading(true);
     try {
       const result = await dispatch(fetchUserLatestByUserName(userName)).unwrap();
-      setCompanyName(result?.companyName || "Unknown Company");
-    } catch (error) {
-      console.error('Error fetching user data:', error);
+  
+      if (result) {
+        setSearchResult(result); // Store the entire result object
+        setCompanyName(result.companyName || "Unknown Company"); // Access companyName directly
+        console.log('fetchData of Latest:', result); // Check if the result is logged correctly
+        setSearchError("");
+      } else {
+        throw new Error("No data found for this user.");
+      }
+    } catch (err) {
+      setSearchResult(null);
       setCompanyName("Unknown Company");
+      setSearchError(err.message || 'No result found for this userID');
     } finally {
       setLoading(false);
     }
   };
+  
 
   
   useEffect(() => {
@@ -313,31 +323,32 @@ const airParameters = [
                     )}
                   </ul>
             </div>
-            <div><div className="row align-items-center">
-              <div className="col-md-4">
-              {searchResult?.stackData && searchResult.stackData.length > 0 && (
-                  <div className="stack-dropdown">
-                    <label htmlFor="stackSelect" className="label-select">Select Station:</label>
-                    <div className="styled-select-wrapper">
-                      <select
-                        id="stackSelect"
-                        className="form-select styled-select"
-                        value={selectedStack}
-                        onChange={handleStackChange}
-                      >
-                        <option value="all">All Stacks</option>
-                        {searchResult.stackData.map((stack, index) => (
-                          <option key={index} value={stack.stackName}>
-                            {stack.stackName}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                )}
+            <div>
+          <div className="row align-items-center">
+          <div className="col-md-4">
+          {searchResult?.stackData && searchResult.stackData.length > 0 && (
+              <div className="stack-dropdown">
+                <label htmlFor="stackSelect" className="label-select">Select Station:</label>
+                <div className="styled-select-wrapper">
+                  <select
+                    id="stackSelect"
+                    className="form-select styled-select"
+                    value={selectedStack}
+                    onChange={handleStackChange}
+                  >
+                    <option value="all">All Stacks</option>
+                    {searchResult.stackData.map((stack, index) => (
+                      <option key={index} value={stack.stackName}>
+                        {stack.stackName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              </div>
-              </div>
+            )}
+          </div>
+          </div>
+          </div>
              
              
               {loading && (
@@ -386,7 +397,7 @@ const airParameters = [
                           emissionStacks.includes(stack.stackName) && (
                                 <div key={stackIndex} className="col-12 mb-4">
                                     <div className="stack-box">
-                                        <h4 className="text-center mt-3">{stack.stackName}</h4>
+                                        <h4 className="text-center mt-3">{stack.stackName} <img src={air} alt="stack image" width={'100px'} /></h4>
                                         <div className="row">
                                             {airParameters.map((item, index) => {
                                                 const value = stack[item.name];
@@ -435,6 +446,9 @@ const airParameters = [
     
             </div>
           </div>
+          <div>
+        <CalibrationExceeded/>
+      </div>
     
           <footer className="footer">
             <div className="container-fluid clearfix">

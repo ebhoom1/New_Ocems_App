@@ -51,7 +51,7 @@ const TreatmentAnalysis = () => {
   };
 
   return (
-    <div className="cardm mt-4 mb-5">
+    <div className="card mt-4 mb-5">
       <div className="card-body">
         <h2 className="m-3">
           Trending Analysis - FL - STP Incomer Energy Consumption, kWh
