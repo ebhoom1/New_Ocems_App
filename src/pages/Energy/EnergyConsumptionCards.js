@@ -12,12 +12,15 @@ const EnergyConsumptionCards = ({ userName, primaryStation }) => {
     energyYearlyConsumption: 0,
   });
 
-  // Establish socket connection
-  const socket = io(API_URL, {
-    transports: ['websocket'],
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-  });
+  // // Establish socket connection
+  // const socket = io(API_URL, {
+  //   transports: ['websocket'],
+  //   reconnectionAttempts: 5,
+  //   reconnectionDelay: 1000,
+  // });
+
+  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+const socket = io(`${protocol}://ems.ebhoom.com/ws`, { transports: ['websocket'] });
 
   // Fetch data function
   const fetchData = async (station) => {
