@@ -16,8 +16,8 @@ import Select from 'react-select';
 import moment from 'moment';
 import './index.css';
 import axios from 'axios';
+import { API_URL } from '../../utils/apiConfig';
 
-const API_URL = 'http://localhost:5555/api';
 
 ChartJS.register(
   CategoryScale,

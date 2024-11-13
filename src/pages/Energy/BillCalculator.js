@@ -5,8 +5,8 @@ import Select from 'react-select';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import html2canvas from 'html2canvas';
 import html2pdf from 'html2pdf.js';
+import { API_URL } from '../../utils/apiConfig';
 
-const API_URL = 'http://localhost:5555';
 
 const BillCalculator = () => {
   const { userData, userType } = useSelector(state => state.user);

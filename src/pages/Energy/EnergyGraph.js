@@ -16,7 +16,7 @@ import { toast } from 'react-toastify';
 import { Oval } from 'react-loader-spinner'; 
 import 'react-toastify/dist/ReactToastify.css';
 import './index.css'; 
-
+import { API_URL } from '../../utils/apiConfig';
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -56,7 +56,7 @@ const EnergyGraph = ({ isOpen, onRequestClose, parameter, userName, stackName })
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:5555/api/hourly-data?userName=${userName}&stackName=${stackName}&date=${formattedDate}`
+                `${API_URL}/api/hourly-data?userName=${userName}&stackName=${stackName}&date=${formattedDate}`
             );
             const result = await response.json();
             if (result.success && result.data.length > 0) {
