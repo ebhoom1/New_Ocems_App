@@ -22,7 +22,10 @@ import PieChartQuantity from "./PieChartQuantity";
 
 const socket = io(SOCKET_URL, {
   withCredentials: true,
-  transports: ['websocket', 'polling']
+  transports: ['websocket', 'polling'],
+  extraHeaders: {
+    'Access-Control-Allow-Origin': '*'
+}
 });
 
 console.log(`Connecting to API: ${API_URL}`);

@@ -8,7 +8,7 @@ import CalibrationExceeded from '../Calibration/CalibrationExceeded';
 import { useOutletContext } from 'react-router-dom';
 import { Oval } from 'react-loader-spinner';
 import DailyHistoryModal from "../Water/DailyHIstoryModal";
-import { API_URL } from "../../utils/apiConfig";
+import { API_URL, SOCKET_URL } from "../../utils/apiConfig";
 import { io } from 'socket.io-client';
 import Hedaer from "../Header/Hedaer";
 import Maindashboard from '../Maindashboard/Maindashboard';
@@ -21,8 +21,17 @@ import waste from '../../assests/images/waste.svg'
 //   reconnectionDelay: 1000, // Retry every second
 // });
 
-const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-const socket = io(`${protocol}://ems.ebhoom.com/ws`, { transports: ['websocket'] });
+
+const socket = io(SOCKET_URL, {
+  withCredentials: true,
+  transports: ['websocket', 'polling'],
+  extraHeaders: {
+    'Access-Control-Allow-Origin': '*'
+}
+});
+
+console.log(`Connecting to API: ${API_URL}`);
+
 
 socket.on('connect', () => console.log('Connected to Socket.IO server'));
 socket.on('connect_error', (error) => console.error('Connection Error:', error));
