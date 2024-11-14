@@ -15,16 +15,12 @@ import Maindashboard from '../Maindashboard/Maindashboard';
 import DashboardSam from '../Dashboard/DashboardSam';
 import effluent from '../../assests/images/effluentimage.svg'
 
-// // Initialize Socket.IO
-// const socket = io(API_URL, { 
-//   transports: ['websocket'], 
-//   reconnectionAttempts: 5,
-//   reconnectionDelay: 1000, // Retry every second
-// });
-
-const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-const socket = io(`${protocol}://ems.ebhoom.com/ws`, { transports: ['websocket'] });
-
+// Initialize Socket.IO
+const socket = io(API_URL, { 
+  transports: ['websocket'], 
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000, // Retry every second
+});
 
 socket.on('connect', () => console.log('Connected to Socket.IO server'));
 socket.on('connect_error', (error) => console.error('Connection Error:', error));

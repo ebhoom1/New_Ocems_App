@@ -10,9 +10,7 @@ import { API_URL } from '../../utils/apiConfig'; // Ensure API_URL is correct
 import DashboardSam from '../Dashboard/DashboardSam';
 import Hedaer from '../Header/Hedaer';
 
-// const socket = io(`${API_URL}`, { withCredentials: true });
-const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-const socket = io(`${protocol}://ems.ebhoom.com/ws`, { transports: ['websocket'] });
+const socket = io(`${API_URL}`, { withCredentials: true });
 
 const ChatApp = () => {
   const [chats, setChats] = useState([]);

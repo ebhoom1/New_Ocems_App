@@ -13,14 +13,11 @@ import { io } from 'socket.io-client';
 import { fetchUserLatestByUserName } from "../../redux/features/userLog/userLogSlice";
 import WaterGraphPopup from "../Water/WaterGraphPopup";
 import air from '../../assests/images/air.svg'
-// const socket = io(API_URL, { 
-//   transports: ['websocket'], 
-//   reconnectionAttempts: 5,
-//   reconnectionDelay: 1000,
-// });
-const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-const socket = io(`${protocol}://ems.ebhoom.com/ws`, { transports: ['websocket'] });
-
+const socket = io(API_URL, { 
+  transports: ['websocket'], 
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
+});
 
 socket.on('connect', () => console.log('Connected to Socket.IO server'));
 socket.on('connect_error', (error) => console.error('Connection Error:', error));
