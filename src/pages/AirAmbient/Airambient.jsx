@@ -7,17 +7,26 @@ import { Oval } from 'react-loader-spinner';
 import DashboardSam from '../Dashboard/DashboardSam';
 import Maindashboard from "../Maindashboard/Maindashboard";
 import Hedaer from "../Header/Hedaer";
-import { API_URL } from "../../utils/apiConfig";
+import { API_URL, SOCKET_URL } from "../../utils/apiConfig";
 import DailyHistoryModal from "../Water/DailyHIstoryModal";
 import { io } from 'socket.io-client';
 import { fetchUserLatestByUserName } from "../../redux/features/userLog/userLogSlice";
 import WaterGraphPopup from "../Water/WaterGraphPopup";
 import air from '../../assests/images/air.svg'
-const socket = io(API_URL, { 
-  transports: ['websocket'], 
-  reconnectionAttempts: 5,
-  reconnectionDelay: 1000,
+// const socket = io(API_URL, { 
+//   transports: ['websocket'], 
+//   reconnectionAttempts: 5,
+//   reconnectionDelay: 1000,
+// });
+
+
+
+const socket = io(SOCKET_URL, {
+    withCredentials: true,
+    transports: ['websocket', 'polling']
 });
+
+console.log(`Connecting to API: ${API_URL}`);
 
 socket.on('connect', () => console.log('Connected to Socket.IO server'));
 socket.on('connect_error', (error) => console.error('Connection Error:', error));

@@ -8,7 +8,7 @@ import CalibrationExceeded from '../Calibration/CalibrationExceeded';
 import { useOutletContext } from 'react-router-dom';
 import { Oval } from 'react-loader-spinner';
 import DailyHistoryModal from "../Water/DailyHIstoryModal"; 
-import { API_URL } from "../../utils/apiConfig";
+import { API_URL, SOCKET_URL } from "../../utils/apiConfig";
 import { io } from 'socket.io-client';
 import axios from "axios";
 import energy from '../../assests/images/energypic.png';
@@ -20,13 +20,19 @@ import PieChartEnergy from "./PieChartEnergy";
 import PrimaryStationSelector from "./PrimaryStationSelector";
 import BillCalculator from "./BillCalculator";
 
-// Initialize Socket.IO
-const socket = io(API_URL, { 
-  transports: ['websocket'], 
-  reconnectionAttempts: 5,
-  reconnectionDelay: 1000, // Retry every second
+// // Initialize Socket.IO
+// const socket = io(API_URL, { 
+//   transports: ['websocket'], 
+//   reconnectionAttempts: 5,
+//   reconnectionDelay: 1000, // Retry every second
+// });
+
+const socket = io(SOCKET_URL, {
+  withCredentials: true,
+  transports: ['websocket', 'polling']
 });
 
+console.log(`Connecting to API: ${API_URL}`);
 socket.on('connect', () => console.log('Connected to Socket.IO server'));
 socket.on('connect_error', (error) => console.error('Connection Error:', error));
 

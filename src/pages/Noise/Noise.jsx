@@ -13,14 +13,21 @@ import Hedaer from '../Header/Hedaer';
 import Maindashboard from '../Maindashboard/Maindashboard';
 import DailyHistoryModal from '../Water/DailyHIstoryModal';
 import { io } from 'socket.io-client';
-import { API_URL } from '../../utils/apiConfig';
+import { API_URL, SOCKET_URL } from '../../utils/apiConfig';
 import WaterGraphPopup from './NoiseGraphPopup';
 
-const socket = io(API_URL, { 
-  transports: ['websocket'], 
-  reconnectionAttempts: 5,
-  reconnectionDelay: 1000, // Retry every second
+// const socket = io(API_URL, { 
+//   transports: ['websocket'], 
+//   reconnectionAttempts: 5,
+//   reconnectionDelay: 1000, // Retry every second
+// });
+
+const socket = io(SOCKET_URL, {
+  withCredentials: true,
+  transports: ['websocket', 'polling']
 });
+
+console.log(`Connecting to API: ${API_URL}`);
 
 socket.on('connect', () => console.log('Connected to Socket.IO server'));
 socket.on('connect_error', (error) => console.error('Connection Error:', error));

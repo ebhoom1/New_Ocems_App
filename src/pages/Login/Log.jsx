@@ -10,6 +10,7 @@ import Modal from "react-modal";
 import "react-toastify/dist/ReactToastify.css";
 import { loginUser } from "../../redux/features/auth/authSlice";
 import loginbanner from '../../assests/images/logimage.png'
+import { API_URL, SOCKET_URL } from '../../utils/apiConfig';
 
 function Log() {
   const navigate = useNavigate();
@@ -92,7 +93,8 @@ function Log() {
         });
     }
   }; 
-
+  console.log('API URL:', API_URL);
+  console.log('Socket URL:', SOCKET_URL);   
   const handleDownloadClick = () => {
     navigate('/download-data');  // Redirect to the download-data page
   };
