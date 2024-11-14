@@ -23,6 +23,7 @@ import air from '../../assests/images/air.svg'
 
 const socket = io(SOCKET_URL, {
     withCredentials: true,
+    path: '/socket.io',
     transports: ['websocket', 'polling'],
     extraHeaders: {
       'Access-Control-Allow-Origin': '*'
